@@ -1,0 +1,10 @@
+[package]
+name = "netloom_rs"
+version = "0.1.0"
+authors = ["Josh Madden <cyrex562@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+pcap = "0.7.0"
