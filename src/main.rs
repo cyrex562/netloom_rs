@@ -138,7 +138,24 @@ extern {
     // int pcap_set_buffer_size(pcap_t *p, int buffer_size);
     fn pcap_set_buffer_size(p : *mut pcap_t, buffer_size: c_int) -> c_int;
 
-    // 
+    // set the time stamp type to be used by a capture device
+    // int pcap_set_tstamp_type(pcap_t *p, int tstamp_type);
+    fn pcap_set_tstamp_type(p : *mut pcap_t, tstamp_type : c_int) -> c_int;
+
+    // get list of time stamp types supported by a capture device, and free that list
+    // int pcap_list_tstamp_types(pcap_t *p, int **tstamp_typesp);
+    fn pcap_list_tstamp_types(p : *mut pcap_t, tstamp_typesp : *mut *mut c_int) -> c_int;
+
+    // void pcap_free_tstamp_types(int *tstamp_types);
+    fn pcap_free_tstamp_types(tstamp_types : *mut c_int);
+
+    // get a name or description for a time stamp value type
+    // const char *pcap_tstamp_type_val_to_name(int tstamp_type);
+
+    
+    // const char *pcap_tstamp_type_val_to_description(int tstamp_type);
+
+
 
     // open a device for live capture
     // pcap_t * pcap_open_live (const char *device, int snaplen, int promisc, int to_ms, char *ebuf)

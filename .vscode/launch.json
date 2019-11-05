@@ -8,7 +8,6 @@
             "name": "(Windows) Launch",
             "type": "cppvsdbg",
             "request": "launch",
-<<<<<<< HEAD
             "program": "${workspaceRoot}/target/debug/net_loom_rs.exe",
             "args": [],
             "stopAtEntry": true,
@@ -16,14 +15,5 @@
             "environment": [],
             "externalConsole": true
         },
-=======
-            "program": "${workspaceFolder}/target/debug/netloom_rs.exe",
-            "args": [],
-            "stopAtEntry": false,
-            "cwd": "${workspaceFolder}",
-            "environment": [],
-            "externalConsole": false
-        }
->>>>>>> bd02cc5e5273c082701426f213c046754d873516
     ]
 }
