@@ -5,7 +5,7 @@ extern crate user32;
 extern crate kernel32;
 
 use pcap::Device;
-use libc::{c_char, c_int, c_uint, c_ushort, c_uchar, c_long};
+use libc::{c_char, c_int, c_uint, c_ushort, c_uchar, c_long, FILE};
 
 type time_t = c_long;
 type suseconds_t = c_long;
@@ -151,87 +151,42 @@ extern {
 
     // get a name or description for a time stamp value type
     // const char *pcap_tstamp_type_val_to_name(int tstamp_type);
+    fn pcap_tstamp_type_val_to_name(tstamp_type : c_int) -> *const c_char;
 
-    
     // const char *pcap_tstamp_type_val_to_description(int tstamp_type);
+    fn pcap_tstamp_type_val_to_description(tstamp_type : c_int) -> *const c_char;
 
+    // get the time stamp time value corresponding to a time stamp type name
+    // int pcap_tstamp_type_name_to_val(const char *name);
+    fn pcap_tstamp_type_name_to_val(name : *const c_char) -> c_int;
 
+    // set the time stamp precision returned in captures
+    // int pcap_set_tstamp_precision(pcap_t *p, int tstamp_precision);
+    fn pcap_set_tstamp_precision(p : *mut pcap_t, tstamp_precision : c_int) -> c_int;
 
-    // open a device for live capture
-    // pcap_t * pcap_open_live (const char *device, int snaplen, int promisc, int to_ms, char *ebuf)
-    fn pcap_open_live(device : *const c_char, snaplen : c_int, promisc: c_int, to_ms: c_int, ebuf : *mut c_char)-> *const pcap_t;
+    // get the time stamp precision returned in captures 
+    // int pcap_get_tstamp_precision(pcap_t *p);
+    fn pcap_get_tstamp_precision(p : *mut pcap_t) -> c_int;
 
-    // open file and dump captures to it
-    // pcap_dumper_t * 	pcap_dump_open (pcap_t *p, const char *fname)
-    fn pcap_dump_open(p : *const pcap_t, fname: *const c_char) -> *const pcap_dumper_t;
+    // get the link-layer header type 
+    // int pcap_datalink(pcap_t *p);
+    fn pcap_datalink(p : *mut pcap_t) -> c_int;
 
-    // set the non-blocking state of an interface
-    // int 	pcap_setnonblock (pcap_t *p, int nonblock, char *errbuf)
-    fn pcap_setnonblock(p : *const pcap_t, nonblock : c_int, errbuf : *mut c_char) -> c_int;
+    //  get the standard I/O stream for a savefile being read 
+    // FILE *pcap_file(pcap_t *p);
+    fn pcap_file(p : *mut pcap_t) -> *mut FILE;
 
-    // get the non-blocking state of an interface
-    // int 	pcap_getnonblock (pcap_t *p, char *errbuf)
-    fn pcap_getnonblock(p : *const pcap_t, errbuf : *mut c_char) -> c_int;
+    // find out whether a savefile has the native byte order 
+    // int pcap_is_swapped(pcap_t *p);
+    fn pcap_is_swapped(p : *mut pcap_t) -> c_int;
 
-    
+    //  get the version number of a savefile 
+    // int pcap_major_version(pcap_t *p);
+    fn pcap_major_version(p : *mut pcap_t) -> c_int;
 
-    
+    // int pcap_minor_version(pcap_t *p);
+    fn pcap_minor_version(p : *mut pcap_t) -> c_int;
 
-    // return the subnet adn netmask of an interface
-    // int 	pcap_lookupnet (const char *device, bpf_u_int32 *netp, bpf_u_int32 *maskp, char *errbuf)
-    fn pcap_lookupnet(device : *const c_char, netp : *must c_uint, maskp : *mut c_uint, errbuf : *mut c_char) -> c_int;
-
-    // typedef void(*) pcap_handler(u_char *user, const struct pcap_pkthdr *pkt_header, const u_char *pkt_data) 
-
-    // collect a group of packets
-    // int 	pcap_dispatch (pcap_t *p, int cnt, pcap_handler callback, u_char *user)
-    fn pcap_dispatch(p : *mut pcap_t, cnt : c_int, callback : extern fn(*mut u8, *const pcap_pkthdr, *const c_uchar), user : *mut c_uchar) -> c_int;
-
-    // collect oa group of packets
-    // int 	pcap_loop (pcap_t *p, int cnt, pcap_handler callback, u_char *user)
-    fn pcap_loop(p : *mut pcap_t, cnt : c_int, callback : extern fn(*mut u8, *const pcap_pkthdr, *const c_uchar), user : *mut c_char) -> c_int;
-
-    // return the next available packet
-    // u_char * 	pcap_next (pcap_t *p, struct pcap_pkthdr *h)
-    fn pcap_next(p : *mut pcap_t, h : *mut pcap_pkthdr) -> *mut c_uchar;
-
-    // read a packet from an interface or an offline capture
-    // int 	pcap_next_ex (pcap_t *p, struct pcap_pkthdr **pkt_header, const u_char **pkt_data)
-    fn pcap_next_ex(p : *mut pcap_t, pkt_hdr : *mut *mut pcap_pkthdr, pkt_data : *const *const c_uchar) -> c_int;
-
-    // set a flag that will force pcap_dispatch or pcap_loop to return rather than looping
-    // void 	pcap_breakloop (pcap_t *)
-    fn pcap_breakloop(p : *mut pcap_t);
-
-    // send a raw packet
-    // int 	pcap_sendpacket (pcap_t *p, u_char *buf, int size)
-    fn pcap_sendpacket(p : *mut pcap_t, buf : *mut c_uchar, size : c_int) -> c_int;
-
-    // save a packet to disk
-    // void 	pcap_dump (u_char *user, const struct pcap_pkthdr *h, const u_char *sp)
-    fn pcap_dump(user : *mut c_uchar, h : *const pcap_pkthdr, sp : *const c_uchar);
-
-    // return the file position for a save file
-    // long 	pcap_dump_ftell (pcap_dumper_t *)
-    fn pcap_dump_ftell(pdt: *mut pcap_dumper_t) -> c_long;
-
-    // compile a packet filter
-    // int 	pcap_compile (pcap_t *p, struct bpf_program *fp, char *str, int optimize, bpf_u_int32 netmask)
-    fn pcap_compile(p : *mut pcap_t, fp : *mut bpf_program, str : *mut char, optimize : c_int, netmask : u32) -> c_int;
-
-    // compile a packet filter without the need of opening an adapter
-    // int 	pcap_compile_nopcap (int snaplen_arg, int linktype_arg, struct bpf_program *program, char *buf, int optimize, bpf_u_int32 mask)
-    fn pcap_compile_nopcap(snaplen_arg : c_int, linktype_arg : c_int, program : *mut bpf_program, buf : *mut char, optimize : c_int, mask : u32) -> c_int;
-
-    // associate a filter to a capture
-    // int 	pcap_setfilter (pcap_t *p, struct bpf_program *fp)
-    fn pcap_setfilter(p : *mut pcap_t, fp : *mut bpf_program) -> c_int;
-
-    // free a filter
-    // void 	pcap_freecode (struct bpf_program *fp)
-    fn pcap_freecode(fp : *mut bpf_program);
-
-    // return the link layer of an adapter
 }
 
 fn main() {
