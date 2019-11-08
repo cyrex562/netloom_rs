@@ -3,6 +3,7 @@ extern crate libloading as lib;
 extern crate winapi;
 extern crate user32;
 extern crate kernel32;
+extern create clap;
 
 use pcap::Device;
 use libc::{c_char, c_int, c_uint, c_ushort, c_uchar, c_long, FILE};
@@ -65,6 +66,57 @@ type suseconds_t = c_long;
     ts : timeval,
     caplen : u32,
     len : u32
+}
+
+
+enum AddressFamily {
+    AF_UNSPEC = 0,
+    AF_UNIX = 1, // unix domain socket
+    AF_INET = 2, // IP Protocol
+    AF_AX25 = 3, // Amateur radio AX.25
+    AF_IPX = 4, // Novell IPX
+    AF_APPLETALK = 5, // AppleTalk DDP
+    AF_NETROM = 6, // Amateur Radio NetROM
+    AF_BRIDGE = 7, // Multi-protocol bridge
+    AF_AAL25 = 8, // Reserved for Werner's ATM
+    AF_X25 = 9, // Reserved for X.25 project
+    AF_INET6 = 10, // IP Version 6
+    AF_ROSE = 11, // Amateur Radio X.25 PLP
+    AF_DECNET = 12, // Reserved for DECnet project
+    AF_NETBEUI = 13, // Reserved for 802.2LLC project
+    AF_SECURITY = 14, // Security callback pseudo AF
+    AF_KEY = 15, // PF_KEY key management API
+    AF_NETLINK = 16, // netlink
+    AF_ROUTE = AF_NELINK,
+    AF_PACKET = 17, // Packet family
+    AF_ASH = 18, // Ash
+    AF_ECONET = 19, // Acorn Econet
+    AF_ATMSVC = 20, // ATM SVCs
+    AF_RDS = 21, // RDS Sockets
+    AF_SNA = 22, // Linux SNA Project
+    AF_IRDA = 23, // IRDA Sockets
+    AF_PPPOX = 24, // PPPoX sockets
+    AF_WANPIPE = 25, // Wanpipe API sockets
+    AF_LLC = 26, // Linux LLC
+    AF_IB = 27, // native infiniband address
+    AF_MPLS = 28, // MPLS
+    AF_CAN = 29, // Controller Area Network
+    AF_TIPC = 30, // TIPC sockets
+    AF_BLUETOOTH = 31, // Bluetooth sockets
+    AF_IUCV = 32, // IUCV sockets
+    AF_RXRPC = 33, // RxRPC sockets
+    AF_ISDN = 34, // mISDN sockets
+    AF_PHONET = 35, // Phonet sockets
+    AF_IEEE802154 = 36, // IEEE802154 sockets
+    AF_CAIF = 37, // CAIF sockets
+    AF_ALG = 38, // Algorithm sockets
+    AF_NFC = 39, // NFC sockets
+    AF_VSOCK = 40, // vSockets
+    AF_KCM = 41, // Kernel Connection Multiplexor
+    AF_QIPCRTR = 42, // Qualcomm IPC router
+    AF_SMC = 43, // SMC sockets PF_SMC
+    AF_XD = 44, // XDP sockets
+    AF_MAX = 45, // highest for now
 }
 
 // todo: define error codes
@@ -192,9 +244,12 @@ extern {
 }
 
 fn main() {
-    println!("Hello, world!");
+    println!("netloom_rs starting!");
+
+
 
     // get pcap interface by ip address
+    println!("getting list of adapters")
     unsafe {
         let mut err_buf : [c_char; 0xff] = [0; 0xff];
         let mut dev_list : *mut pcap_if_t = ptr::null_mut();
@@ -203,13 +258,34 @@ fn main() {
         let result = pcap_findalldevs(dev_list_ptr, err_buf.as_mut_ptr());
         let mut curr_dev : *mut pcap_if_t = dev_list;
         while !curr_dev.is_null() {
+            
+            let dev_name_cstr= CString::from_raw((*curr_dev).name);
+            let dev_desc_cstr = CString::from_raw((*curr_dev).description);
+            let dev_name_str_result = dev_name_cstr.into_string();
+            let dev_desc_str_result = dev_desc_cstr.into_string();
+            assert_eq!(dev_name_str_result.is_ok(), true);
+            assert_eq!(dev_desc_str_result.is_ok(), true);
+            let dev_name = dev_name_str_result.unwrap();
+            let dev_desc = dev_desc_str_result.unwrap();
+            println!("name: {}", dev_name);
+            println!("description: {}", dev_desc);
+
+            let mut addresses = (*curr_dev).addresses;
+            while !addresses.is_null() {
+                let netmask = (*addresses).netmask;
+                let addr = (*addresses).address;
+                let broadaddr = (*addresses).broadaddr;
+                let dstaddr = (*addresses).dstaddr;
+                addresses = (*addresses).next;
+            }
             curr_dev = (*curr_dev).next;
-            let dev_name = CString::from_raw((*curr_dev).name);
-            let dev_desc = CString::from_raw((*curr_dev).description);
-            format!("name: {}", dev_name.to_str();
-            format!("description: {}", dev_desc.to_str());
         }
+        pcap_freealldevs(dev_list);
+
+        
     }
+
+    println!("finished!")
 
     return;
 }
