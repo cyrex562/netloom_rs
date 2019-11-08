@@ -6,6 +6,8 @@ extern crate kernel32;
 
 use pcap::Device;
 use libc::{c_char, c_int, c_uint, c_ushort, c_uchar, c_long, FILE};
+use std::ptr;
+use std::ffi::CString;
 
 type time_t = c_long;
 type suseconds_t = c_long;
@@ -193,7 +195,21 @@ fn main() {
     println!("Hello, world!");
 
     // get pcap interface by ip address
-
+    unsafe {
+        let mut err_buf : [c_char; 0xff] = [0; 0xff];
+        let mut dev_list : *mut pcap_if_t = ptr::null_mut();
+        let mut dev_list_ptr = &mut dev_list as *mut *mut pcap_if_t;
+        // let err_buf_ptr = err_buf as *mut c_char;
+        let result = pcap_findalldevs(dev_list_ptr, err_buf.as_mut_ptr());
+        let mut curr_dev : *mut pcap_if_t = dev_list;
+        while !curr_dev.is_null() {
+            curr_dev = (*curr_dev).next;
+            let dev_name = CString::from_raw((*curr_dev).name);
+            let dev_desc = CString::from_raw((*curr_dev).description);
+            format!("name: {}", dev_name.to_str();
+            format!("description: {}", dev_desc.to_str());
+        }
+    }
 
     return;
 }
