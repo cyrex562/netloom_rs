@@ -1,8 +1,10 @@
+// todo: get rid of this warn mask
 #![allow(non_camel_case_types)]
+#![allow(dead_code)]
 
-
+use std::ffi::CString;
 use libc::{c_char, c_int, c_uint, c_ushort, c_uchar, c_long, FILE};
-
+use std::ptr;
 
 // #define PCAP_IF_LOOPBACK				0x00000001	/* interface is loopback */
 const PCAP_IF_LOOPBACK : u32 = 0x00000001;
@@ -40,7 +42,7 @@ const PCAP_ERROR_NOT_RFMON : i32 = -7;
 // #define PCAP_ERROR_PERM_DENIED		-8	/* no permission to open the device */
 const PCAP_ERROR_PERM_DENIED : i32 = -8;
 // #define PCAP_ERROR_IFACE_NOT_UP		-9	/* interface isn't up */
-const PCAP_ERROR_IFACE_NOT_UP : i32 = -9
+const PCAP_ERROR_IFACE_NOT_UP : i32 = -9;
 // #define PCAP_ERROR_CANTSET_TSTAMP_TYPE	-10	/* this device doesn't support setting the time stamp type */
 const PCAP_ERROR_CANTSET_TSTAMP_TYPE : i32 = -10;
 // #define PCAP_ERROR_PROMISC_PERM_DENIED	-11	/* you don't have permission to capture in promiscuous mode */
@@ -304,10 +306,10 @@ pub struct PcapIfcInfo {
     pub addresses : Vec<PcapIfcAddrInfo>
 }
 
-pub unsafe fn extract_addr_netmask(addresses: *mut pcap::pcap_addr) -> pcap::PcapAddr {
-    let netmask: pcap::PcapAddr;
+pub unsafe fn extract_addr_netmask(addresses: *mut pcap_addr) -> PcapAddr {
+    let netmask: PcapAddr;
     if !(*addresses).netmask.is_null() {
-        netmask = pcap::PcapAddr {
+        netmask = PcapAddr {
             family: num::FromPrimitive::from_u16((*(*addresses).netmask).sa_family).unwrap(),
             data: [
                 (*(*addresses).netmask).sa_data[0],
@@ -345,8 +347,8 @@ pub unsafe fn extract_addr_netmask(addresses: *mut pcap::pcap_addr) -> pcap::Pca
             ],
         };
     } else {
-        netmask = pcap::PcapAddr {
-            family: pcap::AddressFamily::AF_UNSPEC,
+        netmask = PcapAddr {
+            family: AddressFamily::AF_UNSPEC,
             data: [0; 32],
         };
     }
@@ -354,10 +356,10 @@ pub unsafe fn extract_addr_netmask(addresses: *mut pcap::pcap_addr) -> pcap::Pca
 }
 
 pub unsafe fn extract_addr_addr(addresses: *mut pcap_addr) -> PcapAddr {
-    let addr: pcap::PcapAddr;
+    let addr: PcapAddr;
                 // let addr = (*addresses).addr;
                 if !(*addresses).addr.is_null() {
-                    addr = pcap::PcapAddr {
+                    addr = PcapAddr {
                         family: num::FromPrimitive::from_u16((*(*addresses).addr).sa_family)
                             .unwrap(),
                         data: [
@@ -396,19 +398,19 @@ pub unsafe fn extract_addr_addr(addresses: *mut pcap_addr) -> PcapAddr {
                         ],
                     };
                 } else {
-                    addr = pcap::PcapAddr {
-                        family: pcap::AddressFamily::AF_UNSPEC,
+                    addr = PcapAddr {
+                        family: AddressFamily::AF_UNSPEC,
                         data: [0; 32],
                     };
                 }
                 return addr;
 }
 
-pub unsafe fn extract_addr_bcast(addresses: *mut pcap::pcap_addr) -> PcapAddr {
+pub unsafe fn extract_addr_bcast(addresses: *mut pcap_addr) -> PcapAddr {
     //let broadaddr = (*addresses).broadaddr;
-    let bcast: pcap::PcapAddr;
+    let bcast: PcapAddr;
     if !(*addresses).broadaddr.is_null() {
-        bcast = pcap::PcapAddr {
+        bcast = PcapAddr {
             family: num::FromPrimitive::from_u16((*(*addresses).broadaddr).sa_family)
                 .unwrap(),
             data: [
@@ -447,19 +449,19 @@ pub unsafe fn extract_addr_bcast(addresses: *mut pcap::pcap_addr) -> PcapAddr {
             ],
         };
     } else {
-        bcast = pcap::PcapAddr {
-            family: pcap::AddressFamily::AF_UNSPEC,
+        bcast = PcapAddr {
+            family: AddressFamily::AF_UNSPEC,
             data: [0; 32],
         };
     }
-    return bcast_addr;
+    return bcast;
 }
 
-pub unsafe fn extract_addr_dest(addresses: *mut pcap::pcap_addr) -> PcapAddr {
+pub unsafe fn extract_addr_dest(addresses: *mut pcap_addr) -> PcapAddr {
     // let dstaddr = (*addresses).dstaddr;
-    let dest: pcap::PcapAddr;
+    let dest: PcapAddr;
     if !(*addresses).dstaddr.is_null() {
-        dest = pcap::PcapAddr {
+        dest = PcapAddr {
             family: num::FromPrimitive::from_u16((*(*addresses).dstaddr).sa_family)
                 .unwrap(),
             data: [
@@ -498,11 +500,74 @@ pub unsafe fn extract_addr_dest(addresses: *mut pcap::pcap_addr) -> PcapAddr {
             ],
         };
     } else {
-        dest = pcap::PcapAddr {
-            family: pcap::AddressFamily::AF_UNSPEC,
+        dest = PcapAddr {
+            family: AddressFamily::AF_UNSPEC,
             data: [0; 32],
         };
     }
 
     return dest;
+}
+
+pub fn extract_dev_name(curr_dev : *mut pcap_if_t) -> String {
+    let dev_name_cstr: CString = unsafe { CString::from_raw((*curr_dev).name) };
+    let dev_name_str_result = dev_name_cstr.into_string();
+    assert_eq!(dev_name_str_result.is_ok(), true);
+    let dev_name = dev_name_str_result.unwrap();
+    return dev_name;
+}
+
+pub fn extract_desc_name(curr_dev : *mut pcap_if_t) -> String {
+    let dev_desc_cstr = unsafe { CString::from_raw((*curr_dev).description) };
+    let dev_desc_str_result = dev_desc_cstr.into_string();
+    assert_eq!(dev_desc_str_result.is_ok(), true);
+    let dev_desc = dev_desc_str_result.unwrap();
+    return dev_desc;
+}
+
+pub fn get_net_ifcs() -> Vec<PcapIfcInfo> {
+    let mut err_buf: [c_char; 0xff] = [0; 0xff];
+    let mut dev_list: *mut pcap_if_t = ptr::null_mut();
+    let dev_list_ptr = &mut dev_list as *mut *mut pcap_if_t;
+    let result = unsafe {
+        let result = pcap_findalldevs(dev_list_ptr, err_buf.as_mut_ptr());
+    };
+    let mut curr_dev: *mut pcap_if_t = dev_list;
+    let mut out_ifc_info: Vec<PcapIfcInfo> = Vec::new();
+    
+    unsafe {
+        while !curr_dev.is_null() {
+            // parse device name
+            let mut info = PcapIfcInfo {
+                name: extract_dev_name(curr_dev),
+                description:extract_dev_name(curr_dev),
+                addresses: Vec::new(),
+            };
+            println!("name: {}", info.name);
+            println!("description: {}", info.description);
+        
+            let mut addresses = (*curr_dev).addresses;
+            while !addresses.is_null() {
+                let netmask: PcapAddr = extract_addr_netmask(addresses);
+                let addr: PcapAddr = extract_addr_addr(addresses);
+                let bcast: PcapAddr = extract_addr_bcast(addresses);
+                let dest: PcapAddr = extract_addr_dest(addresses);
+                let addr_info = PcapIfcAddrInfo {
+                    netmask: netmask,
+                    addr: addr,
+                    bcast_addr: bcast,
+                    dest_addr: dest,
+                };
+                info.addresses.push(addr_info);
+                // tail
+                addresses = (*addresses).next;
+            } // end of addresses while loop
+            
+            out_ifc_info.push(info);
+            // tail
+            curr_dev = (*curr_dev).next;
+        } // end of interfaces while loop
+        // pcap_freealldevs(dev_list);
+    }; // end of unsafe block
+    return out_ifc_info;
 }
