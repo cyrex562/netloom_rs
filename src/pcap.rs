@@ -5,33 +5,55 @@ use libc::{c_char, c_int, c_uint, c_ushort, c_uchar, c_long, FILE};
 
 
 // #define PCAP_IF_LOOPBACK				0x00000001	/* interface is loopback */
+const PCAP_IF_LOOPBACK : u32 = 0x00000001;
 // #define PCAP_IF_UP					0x00000002	/* interface is up */
+const PCAP_IF_UP : u32 = 0x00000002;
 // #define PCAP_IF_RUNNING					0x00000004	/* interface is running */
+const PCAP_IF_RUNNING : u32 = 0x00000004;
 // #define PCAP_IF_WIRELESS				0x00000008	/* interface is wireless (*NOT* necessarily Wi-Fi!) */
+const PCAP_IF_WIRELESS : u32 = 0x00000008;
 // #define PCAP_IF_CONNECTION_STATUS			0x00000030	/* connection status: */
+const PCAP_IF_CONNECTION_STATUS : u32 = 0x00000030;
 // #define PCAP_IF_CONNECTION_STATUS_UNKNOWN		0x00000000	/* unknown */
+const PCAP_IF_CONNECTION_STATUS_UNKNOWN : u32 = 0x00000000;
 // #define PCAP_IF_CONNECTION_STATUS_CONNECTED		0x00000010	/* connected */
+const PCAP_IF_CONNECTION_STATUS_CONNECTED : u32 = 0x00000010;
 // #define PCAP_IF_CONNECTION_STATUS_DISCONNECTED		0x00000020	/* disconnected */
+const PCAP_IF_CONNECTION_STATUS_DISCONNECTED : u32 = 0x00000020;
 // #define PCAP_IF_CONNECTION_STATUS_NOT_APPLICABLE	0x00000030	/* not applicable */
+const PCAP_IF_CONNECTION_STATUS_NOT_APPLICABLE : u32 = 0x00000030;
 
 // #define PCAP_ERROR			-1	/* generic error code */
+const PCAP_ERROR : i32 = -1;
 // #define PCAP_ERROR_BREAK		-2	/* loop terminated by pcap_breakloop */
+const PCAP_ERROR_BREAK : i32 = -2;
 // #define PCAP_ERROR_NOT_ACTIVATED	-3	/* the capture needs to be activated */
+const PCAP_ERROR_NOT_ACTIVATED : i32 = -3;
 // #define PCAP_ERROR_ACTIVATED		-4	/* the operation can't be performed on already activated captures */
+const PCAP_ERROR_ACTIVATED : i32 = -4;
 // #define PCAP_ERROR_NO_SUCH_DEVICE	-5	/* no such device exists */
+const PCAP_ERROR_NO_SUCH_DEVICE : i32 = -5;
 // #define PCAP_ERROR_RFMON_NOTSUP		-6	/* this device doesn't support rfmon (monitor) mode */
+const PCAP_ERROR_RFMON_NOTSUP : i32 = -6;
 // #define PCAP_ERROR_NOT_RFMON		-7	/* operation supported only in monitor mode */
+const PCAP_ERROR_NOT_RFMON : i32 = -7;
 // #define PCAP_ERROR_PERM_DENIED		-8	/* no permission to open the device */
+const PCAP_ERROR_PERM_DENIED : i32 = -8;
 // #define PCAP_ERROR_IFACE_NOT_UP		-9	/* interface isn't up */
+const PCAP_ERROR_IFACE_NOT_UP : i32 = -9
 // #define PCAP_ERROR_CANTSET_TSTAMP_TYPE	-10	/* this device doesn't support setting the time stamp type */
+const PCAP_ERROR_CANTSET_TSTAMP_TYPE : i32 = -10;
 // #define PCAP_ERROR_PROMISC_PERM_DENIED	-11	/* you don't have permission to capture in promiscuous mode */
+const PCAP_ERROR_PROMISC_PERM_DENIED : i32 = -11;
 // #define PCAP_ERROR_TSTAMP_PRECISION_NOTSUP -12  /* the requested time stamp precision is not supported */
+const PCAP_ERROR_TSTAMP_PRECISION_NOTSUP : i32 = -12;
 
 // #define PCAP_WARNING			1	/* generic warning code */
+const PCAP_WARNING : u32 = 1;
 // #define PCAP_WARNING_PROMISC_NOTSUP	2	/* this device doesn't support promiscuous mode */
+const PCAP_WARNING_PROMISC_NOTSUP : u32 = 2;
 // #define PCAP_WARNING_TSTAMP_TYPE_NOTSUP	3	/* the requested time stamp type is not supported */
-
-
+const PCAP_WARNING_TSTAMP_TYPE_NOTSUP : u32 = 3;
 
 #[derive(FromPrimitive)]
 pub enum AddressFamily {
@@ -84,63 +106,8 @@ pub enum AddressFamily {
     AF_MAX = 45, // highest for now
 }
 
-// impl AddressFamily {
-//     fn from_u16(value : u16) -> AddressFamily {
-//         match value {
-//             0 => AddressFamily::AF_UNSPEC,
-//             1 => AddressFamily::AF_UNIX,
-//             2 => AddressFamily::AF_INET,
-//             3 => AddressFamily::AF_AX25,
-//             4 => AddressFamily::AF_IPX,
-//             5 => AddressFamily::AF_APPLETALK,
-//             6 => AddressFamily::AF_NETROM,
-//             7 => AddressFamily::AF_BRIDGE,
-//             8 => AddressFamily::AF_AAL25,
-//             9 => AddressFamily::AF_X25,
-//             10 => AddressFamily::AF_INET6,
-//             11 => AddressFamily::AF_ROSE,
-//             12 => AddressFamily::AF_DECNET,
-//             13 => AddressFamily::AF_NETBEUI,
-//             14 => AddressFamily::AF_SECURITY,
-//             15 => AddressFamily::AF_KEY,
-//             16 => AddressFamily::AF_NETLINK,
-//             17 => AddressFamily::AF_PACKET,
-//             18 => AddressFamily::AF_ASH,
-//             19 => AddressFamily::AF_ECONET,
-//             20 => AddressFamily::AF_ATMSVC,
-//             21 => AddressFamily::AF_RDS,
-//             22 => AddressFamily::AF_SNA,
-//             23 => AddressFamily::AF_IRDA,
-//             24 => AddressFamily::AF_PPPOX,
-//             25 => AddressFamily::AF_WANPIPE,
-//             26 => AddressFamily::AF_LLC,
-//             27 => AddressFamily::AF_IB,
-//             28 => AddressFamily::AF_MPLS,
-//             29 => AddressFamily::AF_CAN,
-//             30 => AddressFamily::AF_TIPC,
-//             31 => AddressFamily::AF_BLUETOOTH,
-//             32 => AddressFamily::AF_IUCV,
-//             33 => AddressFamily::AF_RXRPC,
-//             34 => AddressFamily::AF_ISDN,
-//             35 => AddressFamily::AF_PHONET,
-//             36 => AddressFamily::AF_IEEE802154,
-//             37 => AddressFamily::AF_CAIF,
-//             38 => AddressFamily::AF_ALG,
-//             39 => AddressFamily::AF_NFC,
-//             40 => AddressFamily::AF_VSOCK,
-//             41 => AddressFamily::AF_KCM,
-//             42 => AddressFamily::AF_QIPCRTR,
-//             43 => AddressFamily::AF_SMC,
-//             44 => AddressFamily::AF_XD,
-//             _ => panic!("unknown value : {}", value),
-//         }
-//     }
-// }
-
 type time_t = c_long;
 type suseconds_t = c_long;
-
-
 
 #[repr(C)] pub struct pcap_t { _private: [u8; 0] }
 #[repr(C)] pub struct pcap_dumper_t { _private: [u8; 0] }
@@ -148,6 +115,7 @@ type suseconds_t = c_long;
     pub sa_family : c_ushort,
     pub sa_data : [u8; 14],
 }
+
 #[repr(C)] pub struct pcap_addr {
     pub next : *mut pcap_addr,
     pub addr : *mut sockaddr,
@@ -334,4 +302,207 @@ pub struct PcapIfcInfo {
     pub name : String,
     pub description : String,
     pub addresses : Vec<PcapIfcAddrInfo>
+}
+
+pub unsafe fn extract_addr_netmask(addresses: *mut pcap::pcap_addr) -> pcap::PcapAddr {
+    let netmask: pcap::PcapAddr;
+    if !(*addresses).netmask.is_null() {
+        netmask = pcap::PcapAddr {
+            family: num::FromPrimitive::from_u16((*(*addresses).netmask).sa_family).unwrap(),
+            data: [
+                (*(*addresses).netmask).sa_data[0],
+                (*(*addresses).netmask).sa_data[1],
+                (*(*addresses).netmask).sa_data[2],
+                (*(*addresses).netmask).sa_data[3],
+                (*(*addresses).netmask).sa_data[4],
+                (*(*addresses).netmask).sa_data[5],
+                (*(*addresses).netmask).sa_data[6],
+                (*(*addresses).netmask).sa_data[7],
+                (*(*addresses).netmask).sa_data[8],
+                (*(*addresses).netmask).sa_data[9],
+                (*(*addresses).netmask).sa_data[10],
+                (*(*addresses).netmask).sa_data[11],
+                (*(*addresses).netmask).sa_data[12],
+                (*(*addresses).netmask).sa_data[13],
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+            ],
+        };
+    } else {
+        netmask = pcap::PcapAddr {
+            family: pcap::AddressFamily::AF_UNSPEC,
+            data: [0; 32],
+        };
+    }
+    return netmask;
+}
+
+pub unsafe fn extract_addr_addr(addresses: *mut pcap_addr) -> PcapAddr {
+    let addr: pcap::PcapAddr;
+                // let addr = (*addresses).addr;
+                if !(*addresses).addr.is_null() {
+                    addr = pcap::PcapAddr {
+                        family: num::FromPrimitive::from_u16((*(*addresses).addr).sa_family)
+                            .unwrap(),
+                        data: [
+                            (*(*addresses).addr).sa_data[0],
+                            (*(*addresses).addr).sa_data[1],
+                            (*(*addresses).addr).sa_data[2],
+                            (*(*addresses).addr).sa_data[3],
+                            (*(*addresses).addr).sa_data[4],
+                            (*(*addresses).addr).sa_data[5],
+                            (*(*addresses).addr).sa_data[6],
+                            (*(*addresses).addr).sa_data[7],
+                            (*(*addresses).addr).sa_data[8],
+                            (*(*addresses).addr).sa_data[9],
+                            (*(*addresses).addr).sa_data[10],
+                            (*(*addresses).addr).sa_data[11],
+                            (*(*addresses).addr).sa_data[12],
+                            (*(*addresses).addr).sa_data[13],
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                        ],
+                    };
+                } else {
+                    addr = pcap::PcapAddr {
+                        family: pcap::AddressFamily::AF_UNSPEC,
+                        data: [0; 32],
+                    };
+                }
+                return addr;
+}
+
+pub unsafe fn extract_addr_bcast(addresses: *mut pcap::pcap_addr) -> PcapAddr {
+    //let broadaddr = (*addresses).broadaddr;
+    let bcast: pcap::PcapAddr;
+    if !(*addresses).broadaddr.is_null() {
+        bcast = pcap::PcapAddr {
+            family: num::FromPrimitive::from_u16((*(*addresses).broadaddr).sa_family)
+                .unwrap(),
+            data: [
+                (*(*addresses).broadaddr).sa_data[0],
+                (*(*addresses).broadaddr).sa_data[1],
+                (*(*addresses).broadaddr).sa_data[2],
+                (*(*addresses).broadaddr).sa_data[3],
+                (*(*addresses).broadaddr).sa_data[4],
+                (*(*addresses).broadaddr).sa_data[5],
+                (*(*addresses).broadaddr).sa_data[6],
+                (*(*addresses).broadaddr).sa_data[7],
+                (*(*addresses).broadaddr).sa_data[8],
+                (*(*addresses).broadaddr).sa_data[9],
+                (*(*addresses).broadaddr).sa_data[10],
+                (*(*addresses).broadaddr).sa_data[11],
+                (*(*addresses).broadaddr).sa_data[12],
+                (*(*addresses).broadaddr).sa_data[13],
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+            ],
+        };
+    } else {
+        bcast = pcap::PcapAddr {
+            family: pcap::AddressFamily::AF_UNSPEC,
+            data: [0; 32],
+        };
+    }
+    return bcast_addr;
+}
+
+pub unsafe fn extract_addr_dest(addresses: *mut pcap::pcap_addr) -> PcapAddr {
+    // let dstaddr = (*addresses).dstaddr;
+    let dest: pcap::PcapAddr;
+    if !(*addresses).dstaddr.is_null() {
+        dest = pcap::PcapAddr {
+            family: num::FromPrimitive::from_u16((*(*addresses).dstaddr).sa_family)
+                .unwrap(),
+            data: [
+                (*(*addresses).dstaddr).sa_data[0],
+                (*(*addresses).dstaddr).sa_data[1],
+                (*(*addresses).dstaddr).sa_data[2],
+                (*(*addresses).dstaddr).sa_data[3],
+                (*(*addresses).dstaddr).sa_data[4],
+                (*(*addresses).dstaddr).sa_data[5],
+                (*(*addresses).dstaddr).sa_data[6],
+                (*(*addresses).dstaddr).sa_data[7],
+                (*(*addresses).dstaddr).sa_data[8],
+                (*(*addresses).dstaddr).sa_data[9],
+                (*(*addresses).dstaddr).sa_data[10],
+                (*(*addresses).dstaddr).sa_data[11],
+                (*(*addresses).dstaddr).sa_data[12],
+                (*(*addresses).dstaddr).sa_data[13],
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+            ],
+        };
+    } else {
+        dest = pcap::PcapAddr {
+            family: pcap::AddressFamily::AF_UNSPEC,
+            data: [0; 32],
+        };
+    }
+
+    return dest;
 }
