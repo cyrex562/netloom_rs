@@ -57,7 +57,7 @@ const PCAP_WARNING_PROMISC_NOTSUP : u32 = 2;
 // #define PCAP_WARNING_TSTAMP_TYPE_NOTSUP	3	/* the requested time stamp type is not supported */
 const PCAP_WARNING_TSTAMP_TYPE_NOTSUP : u32 = 3;
 
-#[derive(FromPrimitive)]
+#[derive(FromPrimitive, Clone, Copy)]
 pub enum AddressFamily {
     AF_UNSPEC = 0,
     AF_UNIX = 1, // unix domain socket
@@ -108,8 +108,17 @@ pub enum AddressFamily {
     AF_MAX = 45, // highest for now
 }
 
+// https://doc.rust-lang.org/std/cmp/trait.PartialEq.html
+impl PartialEq for AddressFamily {
+    fn eq(&self, other: &Self) -> bool {
+        self == other
+    }
+}
+
 type time_t = c_long;
 type suseconds_t = c_long;
+
+// https://doc.rust-lang.org/nomicon/ffi.html
 
 #[repr(C)] pub struct pcap_t { _private: [u8; 0] }
 #[repr(C)] pub struct pcap_dumper_t { _private: [u8; 0] }
@@ -288,11 +297,13 @@ extern {
 
 }
 
+#[derive(Copy, Clone)]
 pub struct PcapAddr {
     pub family : AddressFamily,
     pub data : [u8; 32]
 }
 
+#[derive(Copy, Clone)]
 pub struct PcapIfcAddrInfo {
     pub addr: PcapAddr,
     pub netmask : PcapAddr,
@@ -300,11 +311,14 @@ pub struct PcapIfcAddrInfo {
     pub dest_addr : PcapAddr
 }
 
+#[derive(Clone)]
 pub struct PcapIfcInfo {
     pub name : String,
     pub description : String,
     pub addresses : Vec<PcapIfcAddrInfo>
 }
+
+// https://doc.rust-lang.org/nomicon/working-with-unsafe.html
 
 pub unsafe fn extract_addr_netmask(addresses: *mut pcap_addr) -> PcapAddr {
     let netmask: PcapAddr;

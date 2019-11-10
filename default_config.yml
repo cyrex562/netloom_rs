@@ -1,0 +1,6 @@
+# default configuration file for NetloomRS
+
+network_devices:
+  - name: wlan0
+    address: 172.16.1.151
+  

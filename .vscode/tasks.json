@@ -10,6 +10,15 @@
                 "$rustc"
             ],
             "group": "build"
+        },
+        { 
+            "type":"shell",
+            "command": "copy default_config.yml ./target/debug",
+            "windows": {
+                "command": "copy default_config.yml .\\target\\debug"
+            },
+            "group": "build",
+            "label": "copy default config file"
         }
     ]
 }
