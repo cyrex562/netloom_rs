@@ -2,5 +2,5 @@
 
 network_devices:
   - name: wlan0
-    address: 172.16.1.151
+    address: 192.168.1.53
   
