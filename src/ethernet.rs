@@ -73,8 +73,8 @@ impl EtherType {
     pub fn bytesToEtherType(b : &[u8]) -> EtherType {
         let mut ether_type_value : u16 = 0;
         ether_type_value = u16::to_be(
-            (b[0] as u16) << 8 |
-            b[1] as u16
+            (b[1] as u16) << 8 |
+            b[0] as u16
         );
 
         let etype : EtherType = unsafe { transmute(ether_type_value as u16)};
@@ -95,9 +95,9 @@ impl EthernetFrame {
             src_addr: [0;6],
             ether_type: EtherType::NotSet
         };
-        x.dest_addr.copy_from_slice(&raw_packet_data[0..5]);
-        x.src_addr.copy_from_slice(&raw_packet_data[6..11]);
-        x.ether_type = EtherType::bytesToEtherType(&raw_packet_data[12..13]);
+        x.dest_addr.copy_from_slice(&raw_packet_data[0..6]);
+        x.src_addr.copy_from_slice(&raw_packet_data[6..12]);
+        x.ether_type = EtherType::bytesToEtherType(&raw_packet_data[12..14]);
         return x;
     }
 }
@@ -114,7 +114,7 @@ pub struct EtherSnapPacket {
     ether_type: [u8;2], // which upper layer proto will use the ether frame
 }
 
-pub fn ParseEthernetFrame(packet_data : &Vec<u8>) -> EthernetFrame {
+pub fn parse_ether_frame(packet_data : &Vec<u8>) -> EthernetFrame {
     let frame: EthernetFrame = EthernetFrame::new(packet_data);
     return frame;
 } 

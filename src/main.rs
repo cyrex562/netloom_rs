@@ -93,11 +93,12 @@ fn main() {
 
     // capture packets using capture handle
     // todo: loop and capture packets
-    let _pkt = match pcap::get_packet(cap_handle) {
+    let pkt = match pcap::get_packet(cap_handle) {
         Err(why) =>panic!("failed to get packet: {}", why),
-        Ok(_pkt) => _pkt,
+        Ok(pkt) => pkt,
     };
     // todo: parse packets
+    let _ether_frame: ethernet::EthernetFrame = ethernet::parse_ether_frame(&pkt);
 
     // close pcap handle
     if !cap_handle.is_null() {
