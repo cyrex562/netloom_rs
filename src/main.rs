@@ -23,6 +23,7 @@ use std::ffi::CString;
 mod config;
 mod pcap;
 mod util;
+mod ethernet;
 
 use config::Config;
 
