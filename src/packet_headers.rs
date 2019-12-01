@@ -1,7 +1,7 @@
-use crate::ethernet;
+use crate::ethernet::{EthernetFrame,EtherSnapPacket,LlcPacket};
 
 pub enum PacketHeader {
-    Ethernet: ethernet::EthernetFrame,
-    EthernetSnap: ethernet::EtherSnapPacket,
-    EthernetLlc: ethernet::LlcPacket,
+    EthernetFrame,
+    EtherSnapPacket,
+    LlcPacket,
 }

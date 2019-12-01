@@ -100,6 +100,11 @@ impl EthernetFrame {
         x.ether_type = EtherType::bytesToEtherType(&raw_packet_data[12..14]);
         return x;
     }
+
+    pub fn parse(packet_data : &Vec<u8>) -> EthernetFrame {
+        let frame: EthernetFrame = EthernetFrame::new(packet_data);
+        return frame;
+    }
 }
 
 
@@ -114,7 +119,7 @@ pub struct EtherSnapPacket {
     ether_type: [u8;2], // which upper layer proto will use the ether frame
 }
 
-pub fn parse_ether_frame(packet_data : &Vec<u8>) -> EthernetFrame {
-    let frame: EthernetFrame = EthernetFrame::new(packet_data);
-    return frame;
-} 
+// pub fn parse_ether_frame(packet_data : &Vec<u8>) -> EthernetFrame {
+//     let frame: EthernetFrame = EthernetFrame::new(packet_data);
+//     return frame;
+// } 

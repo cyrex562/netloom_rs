@@ -102,13 +102,18 @@ fn main() {
         Err(why) =>panic!("failed to get packet: {}", why),
         Ok(pkt) => pkt,
     };
+
     // todo: parse packets
-    let _ether_frame: ethernet::EthernetFrame = ethernet::parse_ether_frame(&pkt_info.packet_data.data);
+    let _ether_frame: ethernet::EthernetFrame = 
+        ethernet::EthernetFrame::parse(&pkt_info.packet_data.data);
+    pkt_info.headers.append(&mut _ether_frame as packet_headers::PacketHeader);
+    
 
     // close pcap handle
     if !cap_handle.is_null() {
         pcap::close_cap_handle(cap_handle);
     }
+
     debug!("finished!");
     return;
 }

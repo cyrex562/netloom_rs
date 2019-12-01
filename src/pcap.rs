@@ -12,7 +12,7 @@ use std::result;
 use std::net::Ipv4Addr;
 
 use crate::config::Config;
-use crate::packet::PacketData;
+use crate::packet_data::PacketData;
 
 // #define PCAP_IF_LOOPBACK				0x00000001	/* interface is loopback */
 const PCAP_IF_LOOPBACK: u32 = 0x00000001;
@@ -359,11 +359,11 @@ pub struct PcapIfcInfo {
 
 impl PcapIfcInfo {
     pub fn new() -> PcapIfcInfo {
-        PcapIfcInfo(
+        PcapIfcInfo {
             name: String::new(),
             description: String::new(),
-            addresses: Vec<PcapIfcAddrInfo>::new()
-        )
+            addresses: Vec::<PcapIfcAddrInfo>::new()
+        }
     }
 }
 
