@@ -12,6 +12,7 @@ use std::result;
 use std::net::Ipv4Addr;
 
 use crate::config::Config;
+use crate::packet::PacketData;
 
 // #define PCAP_IF_LOOPBACK				0x00000001	/* interface is loopback */
 const PCAP_IF_LOOPBACK: u32 = 0x00000001;
@@ -222,9 +223,6 @@ extern "C" {
     // this function is deprecated
     // fn pcap_lookupdev(errbuf : *mut c_char) -> *mut c_char;
 
-
-    
-
     // open a saved capture file for reading
     // pcap_t *pcap_open_offline(const char *fname, char *errbuf);
     // pcap_t *pcap_open_offline_with_tstamp_precision(const char *fname, u_int precision, char *errbuf);
@@ -320,23 +318,22 @@ extern "C" {
     // int pcap_minor_version(pcap_t *p);
     pub fn pcap_minor_version(p: *mut pcap_t) -> c_int;
 
-
     // int pcap_next_ex(pcap_t *p, struct pcap_pkthdr **pkt_header,
     //     const u_char **pkt_data);
-    pub fn pcap_next_ex(p: *mut pcap_t, 
-                        pkt_header: *mut *mut pcap_pkthdr,
-                        pkt_data: *mut *const c_uchar) -> c_int;
+    pub fn pcap_next_ex(
+        p: *mut pcap_t,
+        pkt_header: *mut *mut pcap_pkthdr,
+        pkt_data: *mut *const c_uchar,
+    ) -> c_int;
 
     // const u_char *pcap_next(pcap_t *p, struct pcap_pkthdr *h);
-    pub fn pcap_next(p: *mut pcap_t,
-                     h: *mut pcap_pkthdr) -> *mut c_uchar;
-    
+    pub fn pcap_next(p: *mut pcap_t, h: *mut pcap_pkthdr) -> *mut c_uchar;
     // char *pcap_geterr(pcap_t *p);
     // pcap_geterr() returns the error text pertaining to the last pcap library error
     pub fn pcap_geterr(p: *mut pcap_t) -> *mut c_uchar;
 
-    // void pcap_perror(pcap_t *p, const char *prefix);
-    // pcap_perror() prints the text of the last pcap library error on stderr, prefixed by prefix
+// void pcap_perror(pcap_t *p, const char *prefix);
+// pcap_perror() prints the text of the last pcap library error on stderr, prefixed by prefix
 }
 
 #[derive(Copy, Clone)]
@@ -698,53 +695,96 @@ pub fn activate_pcap_handle(cap_handle: *mut pcap_t) -> bool {
     unsafe {
         match pcap_activate(cap_handle) as i32 {
             0 => true,
-            PCAP_WARNING_PROMISC_NOTSUP => { warn!("promiscuous mode not supported"); false},
-            PCAP_WARNING_TSTAMP_TYPE_NOTSUP => { warn!("time stamp type not supported"); false},
-            PCAP_WARNING => { warn!("unspecified warning occurred"); return false}, // todo: get error msg
-            PCAP_ERROR_ACTIVATED =>  { error!("cap handle already activated"); return false},
-            PCAP_ERROR_NO_SUCH_DEVICE => { error!("cap device does not exist"); return false},
-            PCAP_ERROR_PERM_DENIED => {error!("permission denied"); return false},
-            PCAP_ERROR_PROMISC_PERM_DENIED => {error!("promiscuous permission denied"); return false},
-            PCAP_ERROR_IFACE_NOT_UP => {error!("interface offline"); return false},
-            PCAP_ERROR => {error!("unspecified error occurred"); return false},
-            _ => {error!("illegal error/warning code"); return false},
+            PCAP_WARNING_PROMISC_NOTSUP => {
+                warn!("promiscuous mode not supported");
+                false
+            }
+            PCAP_WARNING_TSTAMP_TYPE_NOTSUP => {
+                warn!("time stamp type not supported");
+                false
+            }
+            PCAP_WARNING => {
+                warn!("unspecified warning occurred");
+                return false;
+            } // todo: get error msg
+            PCAP_ERROR_ACTIVATED => {
+                error!("cap handle already activated");
+                return false;
+            }
+            PCAP_ERROR_NO_SUCH_DEVICE => {
+                error!("cap device does not exist");
+                return false;
+            }
+            PCAP_ERROR_PERM_DENIED => {
+                error!("permission denied");
+                return false;
+            }
+            PCAP_ERROR_PROMISC_PERM_DENIED => {
+                error!("promiscuous permission denied");
+                return false;
+            }
+            PCAP_ERROR_IFACE_NOT_UP => {
+                error!("interface offline");
+                return false;
+            }
+            PCAP_ERROR => {
+                error!("unspecified error occurred");
+                return false;
+            }
+            _ => {
+                error!("illegal error/warning code");
+                return false;
+            }
         }
-
     }
 }
 
-pub fn get_packet(cap_handle: *mut pcap_t) -> Result<Vec<u8>, &'static str> {
+pub fn get_packet(cap_handle: *mut pcap_t) -> Result<PacketData, &'static str> {
     debug!("getting packet");
 
-    let mut pkt_hdr : *mut pcap_pkthdr = ptr::null_mut();
-    let mut pkt_data : *const c_uchar = ptr::null();
-    let mut cap_result : c_int = 0;
-    unsafe {
-        cap_result = pcap_next_ex(cap_handle, &mut pkt_hdr, &mut pkt_data)
-    };
+    let mut pkt_hdr: *mut pcap_pkthdr = ptr::null_mut();
+    let mut pkt_data: *const c_uchar = ptr::null();
+    let mut cap_result: c_int = 0;
+    unsafe { cap_result = pcap_next_ex(cap_handle, &mut pkt_hdr, &mut pkt_data) };
 
     let is_err = match cap_result {
-        1 => { debug!("packet captured"); false },
-        0 => { warn!("capture timer expired"); false },
-        PCAP_ERROR => { error!("capture failed");  true },
-        PCAP_ERROR_NOT_ACTIVATED => { error!("not activiated"); true},
-        _ => { error!("unhandled return val"); true }
+        1 => {
+            debug!("packet captured");
+            false
+        }
+        0 => {
+            warn!("capture timer expired");
+            false
+        }
+        PCAP_ERROR => {
+            error!("capture failed");
+            true
+        }
+        PCAP_ERROR_NOT_ACTIVATED => {
+            error!("not activiated");
+            true
+        }
+        _ => {
+            error!("unhandled return val");
+            true
+        }
     };
 
-    let mut out_data: Vec<u8> = Vec::new();
+    let mut out_data: PacketData = PacketData::new();
+
+    //let mut out_data: Vec<u8> = Vec::new();
     if !is_err {
         unsafe {
             let element_count: usize = (*pkt_hdr).len as usize;
-        out_data.reserve(element_count);
-        out_data.set_len(element_count);
-        ptr::copy(pkt_data, out_data.as_mut_ptr(), element_count);
+            out_data.data.reserve(element_count);
+            out_data.data.set_len(element_count);
+            ptr::copy(pkt_data, out_data.data.as_mut_ptr(), element_count);
         };
     }
-    
     // todo: handle the error message
     match is_err {
         true => return Err("failed to get packet"),
-        false => return Ok(out_data)
+        false => return Ok(out_data),
     };
 }
 
