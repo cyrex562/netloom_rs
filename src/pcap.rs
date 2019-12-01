@@ -318,6 +318,17 @@ pub struct PcapIfcInfo {
     pub addresses : Vec<PcapIfcAddrInfo>
 }
 
+impl PcapIfcInfo {
+    pub fn new() -> PcapIfcInfo {
+        PcapIfcInfo(
+            name: String::new(),
+            description: String::new(),
+            addresses: Vec<PcapIfcAddrInfo>::new()
+        )
+    }
+}
+
+
 // https://doc.rust-lang.org/nomicon/working-with-unsafe.html
 
 pub unsafe fn extract_addr_netmask(addresses: *mut pcap_addr) -> PcapAddr {

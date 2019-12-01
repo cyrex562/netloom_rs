@@ -70,12 +70,8 @@ fn main() {
 
     let pcap_info : Vec<pcap::PcapIfcInfo> = pcap::get_net_ifcs();
 
-
-
     // https://doc.rust-lang.org/std/vec/struct.Vec.html
-    let mut tgt_pcap_info : pcap::PcapIfcInfo = {name: "", 
-                                                 descritpion: "", 
-                                                 addresses: Vec::new()};
+    let mut tgt_pcap_info = pcap::PcapIfcInfo::new();
     let mut found : bool = false;
     for pi in &pcap_info {
         println!("name: {}, desc: {}", pi.name, pi.description);
