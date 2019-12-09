@@ -5,31 +5,25 @@ extern crate num;
 extern crate user32;
 extern crate winapi;
 extern crate yaml_rust;
-// #[macro_use]
 extern crate num_derive;
 
 use clap::{App, Arg};
-// use yaml_rust::{YamlLoader};
 use log::{debug, error, info, trace, warn};
-// use serde::{Deserialize, Serialize};
 use std::error::Error;
 use std::fs::File;
 use std::io::prelude::*;
-use std::net::Ipv4Addr;
+use std::io::{stdin};
 use std::path::Path;
-use libc::{c_char};
-use std::ffi::CString;
-
 mod config;
-mod pcap;
-mod util;
 mod ethernet;
 mod packet_data;
-mod packet_info;
 mod packet_headers;
+mod packet_info;
+mod pcap;
+mod util;
 
-use config::Config;
 use crate::packet_info::PacketInfo;
+use config::Config;
 
 fn main() {
     let _result = util::setup_logger();
@@ -84,7 +78,7 @@ fn main() {
 
     // get pcap capture handle
     let cap_handle: *mut pcap::pcap_t = match pcap::get_cap_handle(&ifc_info) {
-        Err(why) =>panic!("failed to get pcap handle: {}", why),
+        Err(why) => panic!("failed to get pcap handle: {}", why),
         Ok(cap_handle) => cap_handle,
     };
 
@@ -97,17 +91,32 @@ fn main() {
 
     // capture packets using capture handle
     // todo: loop and capture packets
-    let mut pkt_info = PacketInfo::new();
-    pkt_info.packet_data = match pcap::get_packet(cap_handle) {
-        Err(why) =>panic!("failed to get packet: {}", why),
-        Ok(pkt) => pkt,
-    };
+    let mut count: u32 = 0;
+    loop {
+        if config.max_loop > 0 {
+            if count >= config.max_loop {
+                break;
+            }
+        }
+        let mut pkt_info = PacketInfo::new();
+        pkt_info.packet_data = match pcap::get_packet(cap_handle) {
+            Err(why) => panic!("failed to get packet: {}", why),
+            Ok(pkt) => pkt,
+        };
+        
+        info!("got packet");
 
-    // todo: parse packets
-    let _ether_frame: ethernet::EthernetFrame = 
-        ethernet::EthernetFrame::parse(&pkt_info.packet_data.data);
-    pkt_info.headers.append(&mut _ether_frame as packet_headers::PacketHeader);
-    
+
+        // todo: parse packets
+        let _ether_frame: ethernet::EthernetFrame =
+            ethernet::EthernetFrame::parse(&pkt_info.packet_data.data);
+        pkt_info
+            .headers
+            .push(packet_headers::PacketHeader::Ethernet(_ether_frame));
+        
+        count += 1; 
+
+    }
 
     // close pcap handle
     if !cap_handle.is_null() {

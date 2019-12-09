@@ -9,4 +9,5 @@ pub struct NetworkDevice {
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct Config {
     pub network_devices: Vec<NetworkDevice>,
+    pub max_loop: u32,
 }
