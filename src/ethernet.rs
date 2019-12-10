@@ -67,13 +67,13 @@ pub enum EtherType {
 // todo: write a function that converts the ethertype to a string.
 
 impl EtherType {
-    pub const ShortesPathBridging88a8: EtherType = EtherType::ProviderBridging;
-    pub const DnaRouting: EtherType = EtherType::DecnetPhase4;
-    pub const ShortestPathBridging: EtherType = EtherType::VlanTag;
+    pub const SHORTES_PATH_BRIDGING88A8: EtherType = EtherType::ProviderBridging;
+    pub const DNA_ROUTING: EtherType = EtherType::DecnetPhase4;
+    pub const SHORTEST_PATH_BRIDGING: EtherType = EtherType::VlanTag;
 
-    pub fn bytesToEtherType(b : &[u8]) -> EtherType {
-        let mut ether_type_value : u16 = 0;
-        ether_type_value = u16::to_be(
+    pub fn bytes_to_ether_type(b : &[u8]) -> EtherType {
+        // let mut ether_type_value : u16;
+        let ether_type_value = u16::to_be(
             (b[1] as u16) << 8 |
             b[0] as u16
         );
@@ -82,12 +82,6 @@ impl EtherType {
         return etype;
     }
 }
-
-// impl PartialEq for EtherType {
-//     fn eq(&self, other: &Self) -> bool {
-//         self == other
-//     }
-// }
 
 pub fn mac_to_str(addr : &[u8; 6]) -> String {
     return format!("{:02X}:{:02X}:{:02X}:{:02X}:{:02X}:{:02X}", addr[0], addr[1], addr[2], addr[3], addr[4], addr[5]);
@@ -109,7 +103,7 @@ impl EthernetFrame {
         };
         x.dest_addr.copy_from_slice(&raw_packet_data[0..6]);
         x.src_addr.copy_from_slice(&raw_packet_data[6..12]);
-        x.ether_type = EtherType::bytesToEtherType(&raw_packet_data[12..14]);
+        x.ether_type = EtherType::bytes_to_ether_type(&raw_packet_data[12..14]);
         return x;
     }
 
