@@ -1,3 +1,8 @@
+//
+//
+// note: in some cases where the call to get adapters finds only one device on windows, this is due to the fact that the npcap driver is not loaded properly. Re-load/re-install npcap to fix this issue. Does this happen after every reboot or just after each update to windows?
+//
+
 extern crate clap;
 extern crate kernel32;
 extern crate libc;
@@ -6,6 +11,7 @@ extern crate user32;
 extern crate winapi;
 extern crate yaml_rust;
 extern crate num_derive;
+extern crate pancurses;
 
 use clap::{App, Arg};
 use log::{debug, error, info, trace, warn};
@@ -14,6 +20,8 @@ use std::fs::File;
 use std::io::prelude::*;
 use std::io::{stdin};
 use std::path::Path;
+use pancurses::{initscr, endwin, Input};
+
 mod config;
 mod ethernet;
 mod packet_data;
@@ -27,6 +35,9 @@ use config::Config;
 
 fn main() {
     let _result = util::setup_logger();
+    let window = initscr();
+    window.keypad(true);
+    window.nodelay(true);
 
     info!("netloom_rs starting!");
 
@@ -110,6 +121,7 @@ fn main() {
         // todo: parse packets
         let _ether_frame: ethernet::EthernetFrame =
             ethernet::EthernetFrame::parse(&pkt_info.packet_data.data);
+        info!("ethernet frame: {}", _ether_frame.to_string());
         pkt_info
             .headers
             .push(packet_headers::PacketHeader::Ethernet(_ether_frame));

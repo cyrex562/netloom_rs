@@ -1,9 +1,8 @@
 
 use num_derive::FromPrimitive;
-use num_traits::FromPrimitive;
 use std::mem::transmute;
 
-#[derive(FromPrimitive)]
+#[derive(FromPrimitive, Copy, Clone)]
 pub enum EtherType {
     NotSet = 0,
     // length 0x0000-0x05DC
@@ -65,6 +64,8 @@ pub enum EtherType {
     VeritasTechLowLatencyTrans = 0xcafe
 }
 
+// todo: write a function that converts the ethertype to a string.
+
 impl EtherType {
     pub const ShortesPathBridging88a8: EtherType = EtherType::ProviderBridging;
     pub const DnaRouting: EtherType = EtherType::DecnetPhase4;
@@ -82,6 +83,11 @@ impl EtherType {
     }
 }
 
+pub fn mac_to_str(addr : &[u8; 6]) -> String {
+    return format!("{:02X}:{:02X}:{:02X}:{:02X}:{:02X}:{:02X}", addr[0], addr[1], addr[2], addr[3], addr[4], addr[5]);
+}
+
+#[derive(Copy, Clone)]
 pub struct EthernetFrame {
     dest_addr: [u8;6],
     src_addr: [u8;6],
@@ -104,6 +110,10 @@ impl EthernetFrame {
     pub fn parse(packet_data : &Vec<u8>) -> EthernetFrame {
         let frame: EthernetFrame = EthernetFrame::new(packet_data);
         return frame;
+    }
+
+    pub fn to_string(self) -> String {
+        return format!("dst: {}, src: {}, type: {:04X}", mac_to_str(&self.dest_addr), mac_to_str(&self.src_addr), self.ether_type as u16);
     }
 }
 
