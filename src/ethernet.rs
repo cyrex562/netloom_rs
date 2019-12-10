@@ -2,7 +2,7 @@
 use num_derive::FromPrimitive;
 use std::mem::transmute;
 
-#[derive(FromPrimitive, Copy, Clone)]
+#[derive(FromPrimitive, Copy, Clone, PartialEq)]
 pub enum EtherType {
     NotSet = 0,
     // length 0x0000-0x05DC
@@ -83,15 +83,21 @@ impl EtherType {
     }
 }
 
+// impl PartialEq for EtherType {
+//     fn eq(&self, other: &Self) -> bool {
+//         self == other
+//     }
+// }
+
 pub fn mac_to_str(addr : &[u8; 6]) -> String {
     return format!("{:02X}:{:02X}:{:02X}:{:02X}:{:02X}:{:02X}", addr[0], addr[1], addr[2], addr[3], addr[4], addr[5]);
 }
 
 #[derive(Copy, Clone)]
 pub struct EthernetFrame {
-    dest_addr: [u8;6],
-    src_addr: [u8;6],
-    ether_type: EtherType
+    pub dest_addr: [u8;6],
+    pub src_addr: [u8;6],
+    pub ether_type: EtherType
 }
 
 impl EthernetFrame {
@@ -113,7 +119,7 @@ impl EthernetFrame {
     }
 
     pub fn to_string(self) -> String {
-        return format!("dst: {}, src: {}, type: {:04X}", mac_to_str(&self.dest_addr), mac_to_str(&self.src_addr), self.ether_type as u16);
+        return format!("src: {}, dst: {}, type: {:04X}", mac_to_str(&self.src_addr), mac_to_str(&self.dest_addr), self.ether_type as u16);
     }
 }
 

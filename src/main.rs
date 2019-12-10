@@ -1,6 +1,6 @@
 //
 //
-// note: in some cases where the call to get adapters finds only one device on windows, this is due to the fact that the npcap driver is not loaded properly. Re-load/re-install npcap to fix this issue. Does this happen after every reboot or just after each update to windows?
+// note: in some cases where the call to get adapters finds only one device on windows, this is because the npcap driver is not loaded properly. Re-load/re-install npcap to fix this issue. Does this happen after every reboot or just after each update to windows?
 //
 
 extern crate clap;
@@ -20,7 +20,7 @@ use std::fs::File;
 use std::io::prelude::*;
 use std::io::{stdin};
 use std::path::Path;
-use pancurses::{initscr, endwin, Input};
+// use pancurses::{initscr, endwin, Input};
 
 mod config;
 mod ethernet;
@@ -32,12 +32,13 @@ mod util;
 
 use crate::packet_info::PacketInfo;
 use config::Config;
+use crate::ethernet::{EthernetFrame, EtherType};
 
 fn main() {
     let _result = util::setup_logger();
-    let window = initscr();
-    window.keypad(true);
-    window.nodelay(true);
+    // let window = initscr();
+    // window.keypad(true);
+    // window.nodelay(true);
 
     info!("netloom_rs starting!");
 
@@ -119,13 +120,24 @@ fn main() {
 
 
         // todo: parse packets
-        let _ether_frame: ethernet::EthernetFrame =
+        let ether_frame: ethernet::EthernetFrame =
             ethernet::EthernetFrame::parse(&pkt_info.packet_data.data);
-        info!("ethernet frame: {}", _ether_frame.to_string());
+        info!("ethernet frame: {}", ether_frame.to_string());
         pkt_info
             .headers
-            .push(packet_headers::PacketHeader::Ethernet(_ether_frame));
-        
+            .push(packet_headers::PacketHeader::Ethernet(ether_frame));
+
+        match ether_frame.ether_type {
+            EtherType::Arp => {
+                info!("ARP Packet")
+            },
+            EtherType::IPv4 => {
+                info!("IPv4 Packet")
+            },
+            _ => {
+                info!("unhandled packet type: {:04X}", ether_frame.ether_type as u16)
+            }
+        }
         count += 1; 
 
     }
