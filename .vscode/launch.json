@@ -5,7 +5,16 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "(Windows) Launch",
+            "type": "lldb",
+            "request": "launch",
+            "name": "Linux Debug",
+            "program": "${workspaceRoot}/target/debug/net_loom_rs",
+            "cwd": "${workspaceRoot}",
+            "args": [],
+            "sourceLanguages": ["rust"],
+        },
+        {
+            "name": "Windows Debug",
             "type": "cppvsdbg",
             "request": "launch",
             "program": "${workspaceRoot}/target/debug/net_loom_rs.exe",
@@ -15,5 +24,6 @@
             "environment": [],
             "externalConsole": true
         },
+
     ]
 }

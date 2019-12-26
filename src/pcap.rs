@@ -199,7 +199,9 @@ pub struct pcap_pkthdr {
     pub len: u32,
 }
 
-#[link(name = "wpcap")]
+
+#[cfg(target_os = "linux")]
+#[link(name = "pcap")]
 extern "C" {
     // create a live capture handle
     // char errbuf[PCAP_ERRBUF_SIZE];
@@ -335,6 +337,9 @@ extern "C" {
 // void pcap_perror(pcap_t *p, const char *prefix);
 // pcap_perror() prints the text of the last pcap library error on stderr, prefixed by prefix
 }
+
+// #[cfg(target_os = "windows")]
+// #[link(name = "wpcap")]
 
 #[derive(Copy, Clone)]
 pub struct PcapAddr {

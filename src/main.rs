@@ -40,7 +40,7 @@ fn main() {
     // window.keypad(true);
     // window.nodelay(true);
 
-    info!("netloom_rs starting!");
+    info!("netloom_rs starting");
 
     // create and parse command line using clap
     // https://docs.rs/clap/2.33.0/clap/
