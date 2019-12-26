@@ -2,7 +2,7 @@
 #![allow(non_camel_case_types)]
 #![allow(dead_code)]
 
-use libc::{c_char, c_int, c_long, c_uchar, c_uint, c_ushort, FILE};
+use libc::{c_char, c_int, c_long, c_uchar, c_uint, c_ushort, FILE, sockaddr};
 use log::{debug, error, info, trace, warn};
 use num_derive::FromPrimitive;
 use std::ffi::CString;
@@ -138,20 +138,13 @@ pub enum pcap_t {}
 pub struct pcap_dumper_t {
     _private: [u8; 0],
 }
-#[repr(C)]
-pub struct sockaddr {
-    pub sa_family: c_ushort,
-    pub sa_data: [u8; 14],
-}
+// #[repr(C)]
+// pub struct sockaddr {
+//     pub sa_family: c_ushort,
+//     pub sa_data: [u8; 14],
+// }
 
-#[repr(C)]
-pub struct pcap_addr {
-    pub next: *mut pcap_addr,
-    pub addr: *mut sockaddr,
-    pub netmask: *mut sockaddr,
-    pub broadaddr: *mut sockaddr,
-    pub dstaddr: *mut sockaddr,
-}
+
 
 // PCAP_IF_LOOPBACK set if the device is a loopback interface
 // PCAP_IF_UP set if the device is up
@@ -164,12 +157,22 @@ pub struct pcap_addr {
 // PCAP_IF_CONNECTION_STATUS_DISCONNECTED the adapter is disconnected
 // PCAP_IF_CONNECTION_STATUS_NOT_APPLICABLE the notion of "connected" and "disconnected" don't apply to this interface; for example, it doesn't apply to a loopback device
 #[repr(C)]
+#[derive(Copy,Clone)]
 pub struct pcap_if_t {
     pub next: *mut pcap_if_t,
     pub name: *mut c_char,
     pub description: *mut c_char,
     pub addresses: *mut pcap_addr,
     pub flags: c_uint,
+}
+
+#[repr(C)]
+pub struct pcap_addr {
+    pub next: *mut pcap_addr,
+    pub addr: *mut sockaddr,
+    pub netmask: *mut sockaddr,
+    pub broadaddr: *mut sockaddr,
+    pub dstaddr: *mut sockaddr,
 }
 
 #[repr(C)]
@@ -381,20 +384,20 @@ pub unsafe fn extract_addr_netmask(addresses: *mut pcap_addr) -> PcapAddr {
         netmask = PcapAddr {
             family: num::FromPrimitive::from_u16((*(*addresses).netmask).sa_family).unwrap(),
             data: [
-                (*(*addresses).netmask).sa_data[0],
-                (*(*addresses).netmask).sa_data[1],
-                (*(*addresses).netmask).sa_data[2],
-                (*(*addresses).netmask).sa_data[3],
-                (*(*addresses).netmask).sa_data[4],
-                (*(*addresses).netmask).sa_data[5],
-                (*(*addresses).netmask).sa_data[6],
-                (*(*addresses).netmask).sa_data[7],
-                (*(*addresses).netmask).sa_data[8],
-                (*(*addresses).netmask).sa_data[9],
-                (*(*addresses).netmask).sa_data[10],
-                (*(*addresses).netmask).sa_data[11],
-                (*(*addresses).netmask).sa_data[12],
-                (*(*addresses).netmask).sa_data[13],
+                (*(*addresses).netmask).sa_data[0] as u8,
+                (*(*addresses).netmask).sa_data[1] as u8,
+                (*(*addresses).netmask).sa_data[2] as u8,
+                (*(*addresses).netmask).sa_data[3] as u8,
+                (*(*addresses).netmask).sa_data[4] as u8,
+                (*(*addresses).netmask).sa_data[5] as u8,
+                (*(*addresses).netmask).sa_data[6] as u8,
+                (*(*addresses).netmask).sa_data[7] as u8,
+                (*(*addresses).netmask).sa_data[8] as u8,
+                (*(*addresses).netmask).sa_data[9] as u8,
+                (*(*addresses).netmask).sa_data[10] as u8,
+                (*(*addresses).netmask).sa_data[11] as u8,
+                (*(*addresses).netmask).sa_data[12] as u8,
+                (*(*addresses).netmask).sa_data[13] as u8,
                 0,
                 0,
                 0,
@@ -430,20 +433,20 @@ pub unsafe fn extract_addr_addr(addresses: *mut pcap_addr) -> PcapAddr {
         addr = PcapAddr {
             family: num::FromPrimitive::from_u16((*(*addresses).addr).sa_family).unwrap(),
             data: [
-                (*(*addresses).addr).sa_data[0],
-                (*(*addresses).addr).sa_data[1],
-                (*(*addresses).addr).sa_data[2],
-                (*(*addresses).addr).sa_data[3],
-                (*(*addresses).addr).sa_data[4],
-                (*(*addresses).addr).sa_data[5],
-                (*(*addresses).addr).sa_data[6],
-                (*(*addresses).addr).sa_data[7],
-                (*(*addresses).addr).sa_data[8],
-                (*(*addresses).addr).sa_data[9],
-                (*(*addresses).addr).sa_data[10],
-                (*(*addresses).addr).sa_data[11],
-                (*(*addresses).addr).sa_data[12],
-                (*(*addresses).addr).sa_data[13],
+                (*(*addresses).addr).sa_data[0] as u8,
+                (*(*addresses).addr).sa_data[1] as u8,
+                (*(*addresses).addr).sa_data[2] as u8,
+                (*(*addresses).addr).sa_data[3] as u8,
+                (*(*addresses).addr).sa_data[4] as u8,
+                (*(*addresses).addr).sa_data[5] as u8,
+                (*(*addresses).addr).sa_data[6] as u8,
+                (*(*addresses).addr).sa_data[7] as u8,
+                (*(*addresses).addr).sa_data[8] as u8,
+                (*(*addresses).addr).sa_data[9] as u8,
+                (*(*addresses).addr).sa_data[10] as u8,
+                (*(*addresses).addr).sa_data[11] as u8,
+                (*(*addresses).addr).sa_data[12] as u8,
+                (*(*addresses).addr).sa_data[13] as u8,
                 0,
                 0,
                 0,
@@ -479,20 +482,20 @@ pub unsafe fn extract_addr_bcast(addresses: *mut pcap_addr) -> PcapAddr {
         bcast = PcapAddr {
             family: num::FromPrimitive::from_u16((*(*addresses).broadaddr).sa_family).unwrap(),
             data: [
-                (*(*addresses).broadaddr).sa_data[0],
-                (*(*addresses).broadaddr).sa_data[1],
-                (*(*addresses).broadaddr).sa_data[2],
-                (*(*addresses).broadaddr).sa_data[3],
-                (*(*addresses).broadaddr).sa_data[4],
-                (*(*addresses).broadaddr).sa_data[5],
-                (*(*addresses).broadaddr).sa_data[6],
-                (*(*addresses).broadaddr).sa_data[7],
-                (*(*addresses).broadaddr).sa_data[8],
-                (*(*addresses).broadaddr).sa_data[9],
-                (*(*addresses).broadaddr).sa_data[10],
-                (*(*addresses).broadaddr).sa_data[11],
-                (*(*addresses).broadaddr).sa_data[12],
-                (*(*addresses).broadaddr).sa_data[13],
+                (*(*addresses).broadaddr).sa_data[0] as u8,
+                (*(*addresses).broadaddr).sa_data[1] as u8,
+                (*(*addresses).broadaddr).sa_data[2] as u8,
+                (*(*addresses).broadaddr).sa_data[3] as u8,
+                (*(*addresses).broadaddr).sa_data[4] as u8,
+                (*(*addresses).broadaddr).sa_data[5] as u8,
+                (*(*addresses).broadaddr).sa_data[6] as u8,
+                (*(*addresses).broadaddr).sa_data[7] as u8,
+                (*(*addresses).broadaddr).sa_data[8] as u8,
+                (*(*addresses).broadaddr).sa_data[9] as u8,
+                (*(*addresses).broadaddr).sa_data[10] as u8,
+                (*(*addresses).broadaddr).sa_data[11] as u8,
+                (*(*addresses).broadaddr).sa_data[12] as u8,
+                (*(*addresses).broadaddr).sa_data[13] as u8,
                 0,
                 0,
                 0,
@@ -528,20 +531,20 @@ pub unsafe fn extract_addr_dest(addresses: *mut pcap_addr) -> PcapAddr {
         dest = PcapAddr {
             family: num::FromPrimitive::from_u16((*(*addresses).dstaddr).sa_family).unwrap(),
             data: [
-                (*(*addresses).dstaddr).sa_data[0],
-                (*(*addresses).dstaddr).sa_data[1],
-                (*(*addresses).dstaddr).sa_data[2],
-                (*(*addresses).dstaddr).sa_data[3],
-                (*(*addresses).dstaddr).sa_data[4],
-                (*(*addresses).dstaddr).sa_data[5],
-                (*(*addresses).dstaddr).sa_data[6],
-                (*(*addresses).dstaddr).sa_data[7],
-                (*(*addresses).dstaddr).sa_data[8],
-                (*(*addresses).dstaddr).sa_data[9],
-                (*(*addresses).dstaddr).sa_data[10],
-                (*(*addresses).dstaddr).sa_data[11],
-                (*(*addresses).dstaddr).sa_data[12],
-                (*(*addresses).dstaddr).sa_data[13],
+                (*(*addresses).dstaddr).sa_data[0] as u8,
+                (*(*addresses).dstaddr).sa_data[1] as u8,
+                (*(*addresses).dstaddr).sa_data[2] as u8,
+                (*(*addresses).dstaddr).sa_data[3] as u8,
+                (*(*addresses).dstaddr).sa_data[4] as u8,
+                (*(*addresses).dstaddr).sa_data[5] as u8,
+                (*(*addresses).dstaddr).sa_data[6] as u8,
+                (*(*addresses).dstaddr).sa_data[7] as u8,
+                (*(*addresses).dstaddr).sa_data[8] as u8,
+                (*(*addresses).dstaddr).sa_data[9] as u8,
+                (*(*addresses).dstaddr).sa_data[10] as u8,
+                (*(*addresses).dstaddr).sa_data[11] as u8,
+                (*(*addresses).dstaddr).sa_data[12] as u8,
+                (*(*addresses).dstaddr).sa_data[13] as u8,
                 0,
                 0,
                 0,
@@ -573,6 +576,15 @@ pub unsafe fn extract_addr_dest(addresses: *mut pcap_addr) -> PcapAddr {
 }
 
 pub fn extract_dev_name(curr_dev: *mut pcap_if_t) -> String {
+
+    unsafe {
+        if (*curr_dev).name.is_null() {
+            warn!("name field of interface is null");
+            return "".to_string();
+        }
+    };
+    
+
     let dev_name_cstr: CString = unsafe { CString::from_raw((*curr_dev).name) };
     let dev_name_str_result = dev_name_cstr.into_string();
     assert_eq!(dev_name_str_result.is_ok(), true);
@@ -581,6 +593,14 @@ pub fn extract_dev_name(curr_dev: *mut pcap_if_t) -> String {
 }
 
 pub fn extract_dev_desc(curr_dev: *mut pcap_if_t) -> String {
+
+    unsafe {
+        if (*curr_dev).description.is_null() {
+            warn!("name field of interface is null");
+            return "".to_string();
+        }
+    };
+
     let dev_desc_cstr = unsafe { CString::from_raw((*curr_dev).description) };
     let dev_desc_str_result = dev_desc_cstr.into_string();
     assert_eq!(dev_desc_str_result.is_ok(), true);
@@ -593,9 +613,14 @@ pub fn get_net_ifcs() -> Vec<PcapIfcInfo> {
     let mut err_buf: [c_char; 0xff] = [0; 0xff];
     let mut dev_list: *mut pcap_if_t = ptr::null_mut();
     let dev_list_ptr = &mut dev_list as *mut *mut pcap_if_t;
-    let _result = unsafe {
-        let _result = pcap_findalldevs(dev_list_ptr, err_buf.as_mut_ptr());
+    let result = unsafe {
+        pcap_findalldevs(dev_list_ptr, err_buf.as_mut_ptr())
     };
+    if result != 0 {
+        panic!("failed to get pcap devices");
+    }
+
+
     let mut curr_dev: *mut pcap_if_t = dev_list;
     let mut out_ifc_info: Vec<PcapIfcInfo> = Vec::new();
 
@@ -696,6 +721,18 @@ pub fn get_cap_handle(ifc_info: &PcapIfcInfo) -> Result<*mut pcap_t, &'static st
     match cap_handle.is_null() {
         true => return Err("failed to get pcap device"),
         false => return Ok(cap_handle),
+    }
+}
+
+pub fn set_pcap_timeout(cap_handle: *mut pcap_t, timeout_val: c_int) {
+    debug!("setting pcap timeout to : {}", timeout_val);
+
+    let result = unsafe {
+        pcap_set_timeout(cap_handle, timeout_val)
+    };
+
+    if result != 0 {
+        error!("failed to set pcap timeout");
     }
 }
 

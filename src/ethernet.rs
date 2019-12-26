@@ -7,7 +7,7 @@ pub enum EtherType {
     NotSet = 0,
     // length 0x0000-0x05DC
     // experimental 0x0101-0x01FF
-    IPv4 = 0x0800,
+    Ipv4 = 0x0800,
     Arp = 0x0806,
     WakeOnLan = 0x0842,
     AudioVideoTransProto = 0x22f0,

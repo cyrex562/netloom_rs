@@ -94,12 +94,17 @@ fn main() {
         Ok(cap_handle) => cap_handle,
     };
 
+    // set capture timeout
+    pcap::set_pcap_timeout(cap_handle, 1000);
+
     // activate handle
     if !pcap::activate_pcap_handle(cap_handle) {
         error!("failed to activate pcap handle");
         pcap::close_cap_handle(cap_handle);
         return;
     }
+
+    
 
     // capture packets using capture handle
     // todo: loop and capture packets
@@ -131,8 +136,11 @@ fn main() {
             EtherType::Arp => {
                 info!("ARP Packet")
             },
-            EtherType::IPv4 => {
+            EtherType::Ipv4 => {
                 info!("IPv4 Packet")
+            },
+            EtherType::Ipv6 => {
+                info!("IPv6 Packet")
             },
             _ => {
                 info!("unhandled packet type: {:04X}", ether_frame.ether_type as u16)

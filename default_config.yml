@@ -2,5 +2,5 @@
 
 network_devices:
   - name: ens33
-    address: 192.168.197.128
+    address: 192.168.1.47
 max_loop: 100  
