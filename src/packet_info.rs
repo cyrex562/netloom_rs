@@ -1,6 +1,13 @@
 use crate::packet_data::PacketData;
 use crate::packet_headers::PacketHeader;
 
+pub enum Layer2Type {
+    NotSet = 0,
+    Ipv4,
+    Ipv6,
+    Arp,
+}
+
 pub struct PacketInfo {
     pub headers : Vec<PacketHeader>,
     pub packet_data : PacketData

@@ -12,6 +12,7 @@ extern crate winapi;
 extern crate yaml_rust;
 extern crate num_derive;
 extern crate pancurses;
+extern crate byteorder;
 
 use clap::{App, Arg};
 use log::{debug, error, info, trace, warn};
@@ -29,8 +30,9 @@ mod packet_headers;
 mod packet_info;
 mod pcap;
 mod util;
+mod arp;
 
-use crate::packet_info::PacketInfo;
+use crate::packet_info::{PacketInfo, Layer2Type};
 use config::Config;
 use crate::ethernet::{EthernetFrame, EtherType};
 
@@ -125,16 +127,18 @@ fn main() {
 
 
         // todo: parse packets
-        let ether_frame: ethernet::EthernetFrame =
-            ethernet::EthernetFrame::parse(&pkt_info.packet_data.data);
+        let ether_frame = ethernet::EthernetFrame::new(&pkt_info.packet_data.data[0..]);
         info!("ethernet frame: {}", ether_frame.to_string());
         pkt_info
             .headers
             .push(packet_headers::PacketHeader::Ethernet(ether_frame));
 
+        let frame_ptr = std::mem::size_of::<EthernetFrame>();
         match ether_frame.ether_type {
             EtherType::Arp => {
-                info!("ARP Packet")
+                let arp_msg = arp::ArpPacket::new(&pkt_info.packet_data.data[frame_ptr..]);
+                pkt_info.headers.push(packet_headers::PacketHeader::Arp(arp_msg));
+                info!("arp pkt: {}", arp_msg.to_string());
             },
             EtherType::Ipv4 => {
                 info!("IPv4 Packet")

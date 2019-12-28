@@ -5,17 +5,16 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "type": "lldb",
+            "type": "lldb-mi",
             "request": "launch",
-            "name": "Linux Debug LLDB",
-            "program": "${workspaceRoot}/target/debug/net_loom_rs",
+            "name": "lldb with sudo",
+            "target": "${workspaceRoot}/target/debug/net_loom_rs",
             "cwd": "${workspaceRoot}",
-            "args": [],
-            "sourceLanguages": ["rust"],
-            // "preLaunchTask": "give_bin_pcap_privs" 
+            "valuesFormatting": "parseText",
+            "lldbmipath": "./lldb-mi"
         },
         {
-            "name": "gdb with sudo?",
+            "name": "gdb with sudo",
             "type": "gdb",
             "request": "launch",
             "gdbpath": "${workspaceRoot}/gdb",
