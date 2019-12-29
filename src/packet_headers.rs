@@ -2,6 +2,7 @@ use crate::ethernet::{EthernetFrame,EtherSnapPacket,LlcPacket};
 use crate::arp::{ArpPacket};
 use crate::ipv4::{Ipv4Header};
 use crate::udp::{UdpHeader};
+use crate::ipv6::{Ipv6Header};
 
 pub enum PacketHeader {
     Ethernet(EthernetFrame),
@@ -9,5 +10,6 @@ pub enum PacketHeader {
     Llc(LlcPacket),
     Arp(ArpPacket),
     Ipv4(Ipv4Header),
-    Udp(UdpHeader)
+    Udp(UdpHeader),
+    Ipv6(Ipv6Header),
 }
