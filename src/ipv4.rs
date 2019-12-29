@@ -3,7 +3,7 @@
 /// IPv4 Protocol Suite
 /// 
 
-use crate::util::{mac_to_str, ipv4_to_str};
+use crate::util::{mac_to_str, ipv4_to_str, bytes_to_u16, bytes_to_u32, u32_ip4_to_str};
 use num_derive::{FromPrimitive, ToPrimitive};
 use num_traits::{FromPrimitive, ToPrimitive};
 use byteorder::{BigEndian, ReadBytesExt};
@@ -18,7 +18,7 @@ pub enum Ipv4Proto {
     Igmp = 2, // RFC1112
     Ggp = 3, // Gateway To Gateway RFC823
     Ipv4 = 4, // IPv4 Encapsulation RFC2003
-    Stream = 5 // RFC1190, RFC1819
+    Stream = 5, // RFC1190, RFC1819
     Tcp = 6, // RFC793
     Cbt = 7, // unk
     Egp = 8, // RFC888
@@ -37,7 +37,7 @@ pub enum Ipv4Proto {
     Prm = 21, // Packet Radio Measurement
     XnsIdp = 22, // Xerox NS IDP
     Trunk1 = 23, // Trunk-1
-    Trunk2, = 24, // Trunk-2
+    Trunk2 = 24, // Trunk-2
     Leaf1 = 25, // Leaf-1
     Leaf2 = 26, // Leaf-2
     Rdp = 27, // Reliable Data Protocol RFC908
@@ -184,13 +184,15 @@ impl Ipv4Proto {
 #[repr(C)]
 pub struct Ipv4Header {
     pub version_ihl: u8,
-    pub tos : u8
+    pub tos : u8,
     pub tot_len : u16,
     pub ip_id : u16,
     pub flags_fragoff : u16,
     pub ttl : u8,
     pub proto : Ipv4Proto,
-    pub chksum : u16
+    pub chksum : u16,
+    pub src_addr: u32,
+    pub dst_addr: u32,
 }
 
 #[derive(Copy, Clone, PartialEq, FromPrimitive, Debug)]
@@ -205,18 +207,21 @@ pub enum Ipv4TosPrecedence {
     Routine = 0
 }
 
+impl Default for Ipv4TosPrecedence {
+    fn default() -> Self { Ipv4TosPrecedence::Routine }
+}
+
 impl Ipv4TosPrecedence {
     fn from_byte(b: u8) -> Ipv4TosPrecedence {
-        match b {
-            b & 0b11100000 == 1 => Ipv4TosPrecedence::NetCtrl,
-            b & 0b11000000 == 1 => Ipv4TosPrecedence::InternetworkControl,
-            b & 0b10100000 == 1 => Ipv4TosPrecedence::CriticEcp,
-            b & 0b10000000 == 1 => Ipv4TosPrecedence::FlashOverride,
-            b & 0b01100000 == 1 => Ipv4TosPrecedence::Flash,
-            b & 0b01000000 == 1 => Ipv4TosPrecedence::Immediate,
-            b & 0b00100000 == 1 => Ipv4TosPrecedence::Priority,
-            _ => Ipv4TosPrecedence::Routine,
-        }
+
+        if b & 0b11100000 == 1 { return Ipv4TosPrecedence::NetCtrl }
+        else if b & 0b11100000 == 1 { return Ipv4TosPrecedence::InternetworkControl }
+        else if b & 0b10100000 == 1 { return Ipv4TosPrecedence::CriticEcp }
+        else if b & 0b10000000 == 1 { return Ipv4TosPrecedence::FlashOverride }
+        else if b & 0b01100000 == 1 { return Ipv4TosPrecedence::Flash }
+        else if b & 0b01000000 == 1 { return Ipv4TosPrecedence::Immediate }
+        else if b & 0b00100000 == 1 { return Ipv4TosPrecedence::Priority }
+        else { return Ipv4TosPrecedence::Routine};
     }
 }
 
@@ -226,12 +231,14 @@ pub enum Ipv4TosDelay {
     LowDelay = 1,
 }
 
+impl Default for Ipv4TosDelay {
+    fn default() -> Self { Ipv4TosDelay::NormalDelay }
+}
+
 impl Ipv4TosDelay {
     fn from_byte(b: u8) -> Ipv4TosDelay {
-        match b {
-            b & 0b00010000 == 1 => Ipv4TosDelay::LowDelay,
-            _ => Ipv4TosDelay::NormalDelay
-        }
+        if b & 0b00010000 == 1 { return Ipv4TosDelay::LowDelay }
+        else { return Ipv4TosDelay::NormalDelay };
     }
 }
 
@@ -241,12 +248,15 @@ pub enum Ipv4TosThroughput {
     HighThroughput = 1,
 }
 
-impl IPv4TosThroughput {
+impl Default for Ipv4TosThroughput {
+    fn default() -> Self { Ipv4TosThroughput::NormalThroughput }
+}
+
+
+impl Ipv4TosThroughput {
     fn from_byte(b: u8) -> Ipv4TosThroughput {
-        match b {
-            b & 0b000001000 == 1 => Ipv4TosThroughput::HighThroughput,
-            _ => Ipv4TosThroughput::NormalThroughput,
-        }
+        if b & 0b000001000 == 1 { return Ipv4TosThroughput::HighThroughput }
+        else { return Ipv4TosThroughput::NormalThroughput }
     }
 }
 
@@ -256,12 +266,14 @@ pub enum Ipv4TosReliability {
     HighReliability = 1,
 }
 
+impl Default for Ipv4TosReliability {
+    fn default() -> Self { Ipv4TosReliability::NormalReliability }
+}
+
 impl Ipv4TosReliability {
     fn from_byte(b: u8) -> Ipv4TosReliability {
-        match b {
-            b & 0b000000100 == 1 => Ipv4TosReliability::HighReliability,
-            _ => Ipv4TosReliability::NormalReliability,
-        }
+        if b & 0b000000100 == 1 { return Ipv4TosReliability::HighReliability }
+        else { return Ipv4TosReliability::NormalReliability }; 
     }
 }
 
@@ -276,31 +288,43 @@ pub struct Ipv4Tos {
 impl Ipv4Tos {
     fn new(b : u8) -> Ipv4Tos {
         let mut x: Ipv4Tos = Default::default();
-        x.precedence = Ipv4TosPrecedence::from_byte(self.tos);
-        x.delay = Ipv4TosDelay::from_byte(self.tos);
-        x.throughput = Ipv4TosThroughput::from_byte(self.tos);
-        x.reliability = Ipv4TosReliability::from_byte(self.tos);
+        x.precedence = Ipv4TosPrecedence::from_byte(b);
+        x.delay = Ipv4TosDelay::from_byte(b);
+        x.throughput = Ipv4TosThroughput::from_byte(b);
+        x.reliability = Ipv4TosReliability::from_byte(b);
         return x;
     }
 
     fn to_string(self) -> String {
-        format!("precedence: {:?}, delay: {:?}, throughput: {:?}, reliability: {:?}")
+        format!("precedence: {:?}, delay: {:?}, throughput: {:?}, reliability: {:?}", self.precedence, self.delay, self.throughput, self.reliability)
     }
 }
 
 
-#[derive(Copy,Clone,Default, Debug)] 
+#[derive(Copy,Clone, Debug)] 
 #[repr(u8)]
 enum Ipv4Flags {
     NotSet = 0,
     MayFragment,
     DontFragment,
-    LastFragments,
+    LastFragment,
     MoreFragments,
 }
 
+impl Default for Ipv4Flags {
+    fn default() -> Self { Ipv4Flags::NotSet }
+}
+
 impl Ipv4Flags {
-    
+    fn from_u16(w : u16) -> [Ipv4Flags;2] {
+        let mut out_flags : [Ipv4Flags;2] = [Ipv4Flags::NotSet, Ipv4Flags::NotSet];
+        if w & 0b0100000000000000 == 0  { out_flags[0] = Ipv4Flags::MayFragment }
+        else if  w & 0b0100000000000000 == 1 { out_flags[0] = Ipv4Flags::DontFragment }
+        else if    w & 0b0010000000000000 == 0 { out_flags[1] = Ipv4Flags::LastFragment }
+        else if    w & 0b0010000000000000 == 1 { out_flags[1] = Ipv4Flags::LastFragment }
+        
+        return out_flags;
+    }
 }
 
 impl Ipv4Header {
@@ -308,39 +332,55 @@ impl Ipv4Header {
         let mut x: Ipv4Header = Default::default();
         x.version_ihl = raw_ip4_hdr[0];
         x.tos = raw_ip4_hdr[1];
-        x.tot_len = raw_ip4_hdr[2..].read_u16::<B:XigEndian>().unwrap();
-        x.ip_id = raw_ip4_hdr[4..].read_u16::<BigEndian>().unwrap();
-        x.flags_fragoff = raw_ip4_hdr[6..].read_u16::<BigEndian>().unwrap();
+        x.tot_len = bytes_to_u16(&raw_ip4_hdr[2..]);
+        x.ip_id = bytes_to_u16(&raw_ip4_hdr[4..]);
+        x.flags_fragoff = bytes_to_u16(&raw_ip4_hdr[6..]);
         x.ttl = raw_ip4_hdr[8];
-        x.proto = Ipv4Proto::from_u8(raw_ip4_hdr[9])
-        x.chksum = raw_ip4_hdr[10..].read_u16::<BigEndian>().unwrap();
-    }
-
-    pub version(self) -> u8 {
-        (self.version_ihl & 0b11110000) >> 4
-    }
-
-    pub ihl(self) -> u8 {
-        self.version_ihl & 0b00001111
-    }
-
-    pub expand_tos(self) -> Ipv4Tos {
-        let x : Ipv4Tos::new(self.tos);
+        x.proto = Ipv4Proto::from_u8(raw_ip4_hdr[9]).unwrap();
+        x.chksum = bytes_to_u16(&raw_ip4_hdr[10..]);
+        x.src_addr = bytes_to_u32(&raw_ip4_hdr[12..]);
+        x.dst_addr = bytes_to_u32(&raw_ip4_hdr[16..]);
         return x;
     }
 
-    pub flags(self) ->Ipv4Flags {
+    pub fn version(self) -> u8 {
+        let x = (self.version_ihl & 0b11110000) >> 4;
+        return x;
+    }
 
+    pub fn ihl(self) -> u8 {
+        let x = self.version_ihl & 0b00001111;
+        return x;
+    }
+
+    pub fn expand_tos(self) -> Ipv4Tos {
+        let x = Ipv4Tos::new(self.tos);
+        return x;
+    }
+
+    pub fn flags(self) -> u16 {
+        let x : u16 = self.flags_fragoff >> 13;
+        return x;
+    }
+
+    pub fn frag_off(self) -> u16 {
+        let x = self.flags_fragoff & 0b0001111111111111;
+        return x;
+    }
+
+    pub fn src_addr_str(self) -> String {
+        let x = u32_ip4_to_str(self.src_addr);
+        return x;
+    }
+
+    pub fn dst_addr_str(self) -> String {
+        let x = u32_ip4_to_str(self.dst_addr);
+        return x;
     }
 
     pub fn to_string(self) -> String {
-        format!("version: {}, IHL: {}, TOS: {:?}, Tot Len: {}, IP ID: {:02x}, Flags: {:?}, TTL: {}, Proto: {:?}, Checksum: {:02x}", self.version(), self.ihl(), self.expand_tos(), self.tot_len, self.ip_id, 
-        )
+        format!("version: {}, IHL: {}, TOS: {:?}, Tot Len: {}, IP ID: {:02x}, Flags: {:?}, Frag Off: {}, TTL: {}, Proto: {:?}, Checksum: {:02x}, Src Addr: {}, Dst Addr: {}", self.version(), self.ihl(), self.expand_tos(), self.tot_len, self.ip_id, self.flags(), self.frag_off(), self.ttl, self.proto, self.chksum, self.src_addr_str(), self.dst_addr_str())
     }
-
-    // todo: get version
-    // todo: get IHL
-    // todo: decode TOS
-    // todo: decode flags, fragoff
+    
     // todo: calculate checksum
 }

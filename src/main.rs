@@ -3,38 +3,42 @@
 // note: in some cases where the call to get adapters finds only one device on windows, this is because the npcap driver is not loaded properly. Re-load/re-install npcap to fix this issue. Does this happen after every reboot or just after each update to windows?
 //
 
+extern crate byteorder;
 extern crate clap;
 extern crate kernel32;
 extern crate libc;
 extern crate num;
+extern crate num_derive;
+extern crate pancurses;
 extern crate user32;
 extern crate winapi;
 extern crate yaml_rust;
-extern crate num_derive;
-extern crate pancurses;
-extern crate byteorder;
 
 use clap::{App, Arg};
 use log::{debug, error, info, trace, warn};
 use std::error::Error;
 use std::fs::File;
 use std::io::prelude::*;
-use std::io::{stdin};
+use std::io::stdin;
 use std::path::Path;
 // use pancurses::{initscr, endwin, Input};
 
+mod arp;
 mod config;
 mod ethernet;
+mod ipv4;
 mod packet_data;
 mod packet_headers;
 mod packet_info;
 mod pcap;
+mod udp;
 mod util;
-mod arp;
 
-use crate::packet_info::{PacketInfo, Layer2Type};
+use crate::ethernet::{EtherType, EthernetFrame};
+use crate::ipv4::{Ipv4Header, Ipv4Proto};
+use crate::packet_info::{Layer2Type, PacketInfo};
+use crate::udp::UdpHeader;
 use config::Config;
-use crate::ethernet::{EthernetFrame, EtherType};
 
 fn main() {
     let _result = util::setup_logger();
@@ -106,8 +110,6 @@ fn main() {
         return;
     }
 
-    
-
     // capture packets using capture handle
     // todo: loop and capture packets
     let mut count: u32 = 0;
@@ -122,36 +124,56 @@ fn main() {
             Err(why) => panic!("failed to get packet: {}", why),
             Ok(pkt) => pkt,
         };
-        
         info!("got packet");
-
 
         // todo: parse packets
         let ether_frame = ethernet::EthernetFrame::new(&pkt_info.packet_data.data[0..]);
-        info!("ethernet frame: {}", ether_frame.to_string());
+        info!("Ethernet Header: {}", ether_frame.to_string());
         pkt_info
             .headers
             .push(packet_headers::PacketHeader::Ethernet(ether_frame));
 
-        let frame_ptr = std::mem::size_of::<EthernetFrame>();
+        let mut frame_ptr = std::mem::size_of::<EthernetFrame>();
+
+        let mut ip_proto: Ipv4Proto = Ipv4Proto::Reserved;
+
         match ether_frame.ether_type {
             EtherType::Arp => {
                 let arp_msg = arp::ArpPacket::new(&pkt_info.packet_data.data[frame_ptr..]);
-                pkt_info.headers.push(packet_headers::PacketHeader::Arp(arp_msg));
-                info!("arp pkt: {}", arp_msg.to_string());
-            },
+                pkt_info
+                    .headers
+                    .push(packet_headers::PacketHeader::Arp(arp_msg));
+                info!("ARP Message: {}", arp_msg.to_string());
+            }
             EtherType::Ipv4 => {
-                info!("IPv4 Packet")
-            },
-            EtherType::Ipv6 => {
-                info!("IPv6 Packet")
-            },
-            _ => {
-                info!("unhandled packet type: {:04X}", ether_frame.ether_type as u16)
+                let ipv4_hdr = ipv4::Ipv4Header::new(&pkt_info.packet_data.data[frame_ptr..]);
+                info!("IPv4 Header: {}", ipv4_hdr.to_string());
+                pkt_info
+                    .headers
+                    .push(packet_headers::PacketHeader::Ipv4(ipv4_hdr));
+                frame_ptr += std::mem::size_of::<ipv4::Ipv4Header>();
+                ip_proto = ipv4_hdr.proto;
+            }
+            EtherType::Ipv6 => info!("IPv6 Header"),
+            _ => info!(
+                "unhandled packet type: {:04X}",
+                ether_frame.ether_type as u16
+            ),
+        }
+        count += 1;
+
+        if ether_frame.ether_type == EtherType::Ipv4 || ether_frame.ether_type == EtherType::Ipv6 {
+            if ip_proto == Ipv4Proto::Udp {
+                let udp_hdr = UdpHeader::new(&pkt_info.packet_data.data[frame_ptr..]);
+                pkt_info
+                    .headers
+                    .push(packet_headers::PacketHeader::Udp(udp_hdr));
+                frame_ptr += std::mem::size_of::<UdpHeader>();
+                info!("UDP Header: {}", udp_hdr.to_string());
+            } else {
+                info!("unhandled IP proto: {:?}", ip_proto);
             }
         }
-        count += 1; 
-
     }
 
     // close pcap handle

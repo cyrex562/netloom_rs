@@ -19,19 +19,28 @@ pub fn setup_logger() -> Result<(), fern::InitError> {
 }
 
 
-pub fn bytes_to_u16(data : &[u8], big_endian: bool) -> u16 {
+pub fn bytes_to_u16(data : &[u8]) -> u16 {
+    u16::to_le(
+        (data[0] as u16) << 8 |
+        data[1] as u16
+    )
+}
 
-    if big_endian == true {
-        u16::to_be(
-            (data[1] as u16) << 8 |
-            data[0] as u16
-        )
-    } else {
-        u16::to_be(
-            (data[0] as u16) << 8 |
-            data[1] as u16
-        )
-    } 
+pub fn bytes_to_u32(data : &[u8]) -> u32 {
+    u32::to_le(
+        (data[0] as u32) << 24 |
+        (data[1] as u32) << 16 |
+        (data[2] as u32) << 8 |
+        (data[3] as u32)
+    )
+}
+
+pub fn u32_ip4_to_str(d : u32) -> String {
+    format!("{}.{}.{}.{}", 
+(d & 0xff000000) >> 24,
+        (d & 0x00ff0000) >> 16,
+        (d & 0x0000ff00) >> 8,
+        d & 0x000000ff)
 }
 
 pub fn mac_to_str(addr : &[u8; 6]) -> String {
