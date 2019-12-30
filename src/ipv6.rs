@@ -4,10 +4,9 @@
 /// ref: https://tools.ietf.org/html/rfc2460
 /// 
 
-use crate::util::{mac_to_str, ipv4_to_str, bytes_to_u16, bytes_to_u32, u32_ip4_to_str, ipv6_to_str};
+use crate::util::{bytes_to_u16, bytes_to_u32, ipv6_to_str};
 use num_derive::{FromPrimitive, ToPrimitive};
 use num_traits::{FromPrimitive, ToPrimitive};
-use byteorder::{BigEndian, ReadBytesExt};
 use log::{error, debug};
 use crate::ip_proto::Ipv4Proto;
 

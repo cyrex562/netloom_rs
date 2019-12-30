@@ -3,7 +3,7 @@
 #![allow(dead_code)]
 
 use libc::{c_char, c_int, c_long, c_uchar, c_uint, c_ushort, FILE, sockaddr};
-use log::{debug, error, info, trace, warn};
+use log::{debug, error, warn};
 use num_derive::FromPrimitive;
 use std::ffi::CString;
 use std::ptr;

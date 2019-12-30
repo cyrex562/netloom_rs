@@ -11,7 +11,8 @@
             "target": "${workspaceRoot}/target/debug/net_loom_rs",
             "cwd": "${workspaceRoot}",
             "valuesFormatting": "parseText",
-            "lldbmipath": "./lldb-mi"
+            "lldbmipath": "./lldb-mi",
+            "env": {"RUST_BACKTRACE":1}
         },
         {
             "name": "gdb with sudo",
