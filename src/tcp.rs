@@ -303,6 +303,8 @@ pub enum TcpControlBits {
     Fin,
 }
 
+
+
 // src port : u16
 // dst port : u16
 // seq num : u32
@@ -354,31 +356,31 @@ impl TcpHeader {
     }
 
     // decode control_bits
-    pub fn control_bits(self) -> [TcpControlBits;6] {
-        let mut out_bits : [TcpControlBits;6] = [TcpControlBits::None,TcpControlBits::None,TcpControlBits::None,TcpControlBits::None,TcpControlBits::None,TcpControlBits::None];
+    pub fn control_bits(self) -> Vec<TcpControlBits> {
+        // let mut out_bits : [TcpControlBits;6] = [TcpControlBits::None,TcpControlBits::None,TcpControlBits::None,TcpControlBits::None,TcpControlBits::None,TcpControlBits::None];
+        let mut out_bits : Vec<TcpControlBits> = Vec::new();
         let ctrl_field: u16 = self.data_off_reserved_control_bits & 0x3f;
-        debug!("field: 0b{:016b} (0x{:02X})", ctrl_field, ctrl_field);
+        // debug!("field: 0b{:016b} (0x{:02X})", ctrl_field, ctrl_field);
         if ctrl_field & 0x20 > 0 {
-            out_bits[0] = TcpControlBits::Urg;
+            out_bits.push(TcpControlBits::Urg);
         }
         if ctrl_field & 0x10 > 0 {
-            out_bits[1] = TcpControlBits::Ack;
+            out_bits.push(TcpControlBits::Ack);
         }
         if ctrl_field & 0x08 > 0  {
-            out_bits[2] = TcpControlBits::Psh;
+            out_bits.push(TcpControlBits::Psh);
         }
         if ctrl_field & 0x04 > 0 {
-            out_bits[3] = TcpControlBits::Rst;
+            out_bits.push(TcpControlBits::Rst);
         }
         if ctrl_field & 0x02 > 0 {
-            out_bits[4] = TcpControlBits::Syn;
+            out_bits.push(TcpControlBits::Syn);
         }
         if ctrl_field & 0x01 > 0 {
-            out_bits[5] = TcpControlBits::Fin;
+            out_bits.push(TcpControlBits::Fin);
         } 
         return out_bits;
     }
-
 
     // decode options;
     pub fn decode_options(self, opts: &[u8]) -> Vec<TcpOptions> {
@@ -449,3 +451,4 @@ impl TcpHeader {
         format!("Src Port: {}, Dst Port: {}, Seq #: {:X}, Ack #: {:X}, Data Off: {}, Control Bits: {:?}, Window: {}, Checksum: {:X}, Urg Ptr: {:X}, Options: {:?}", self.src_port, self.dst_port, self.seq_num, self.ack_num, self.data_off(), self.control_bits(), self.window, self.checksum, self.urg_ptr, self.decode_options(opts_raw))
     }
 }
+

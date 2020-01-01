@@ -36,6 +36,7 @@ mod util;
 mod ip_proto;
 mod ipv6;
 mod tcp;
+mod transport_proto;
 
 use crate::ethernet::{EtherType, EthernetFrame};
 use crate::ipv4::{Ipv4Header};
@@ -189,12 +190,20 @@ fn main() {
                     let tcp_hdr = TcpHeader::new(&pkt_info.packet_data.data[frame_ptr..]);
                     info!("TCP Header: {:?}", tcp_hdr.to_string(&pkt_info.packet_data.data[frame_ptr + std::mem::size_of::<TcpHeader>()..]));
                     frame_ptr += (tcp_hdr.data_off() * 32) as usize;
-                    pkt_info.headers.push(packet_headers::PacketHeader::Tcp(tcp_hdr))
+                    pkt_info.headers.push(packet_headers::PacketHeader::Tcp(tcp_hdr));
+
+                    // process based on port
+                    // if tcp_hdr.src_port == 80 || tcp_hdr.dst_port == 80 {
+
+                    // }
+
                 },
                 _ => warn!("unprocessed IP proto: {:?}", ip_proto)
             }
         }
-    }
+
+        // Guess at traffic based on port
+    } // End of packet capture loop
 
     // close pcap handle
     if !cap_handle.is_null() {
