@@ -9,23 +9,19 @@ pub enum Layer2Type {
 }
 
 pub struct PacketInfo {
-    pub headers : Vec<PacketHeader>,
-    pub packet_data : PacketData
+    pub headers: Vec<PacketHeader>,
+    pub packet_data: PacketData,
 }
 
 impl PacketInfo {
     pub fn new() -> PacketInfo {
         PacketInfo {
-            packet_data : PacketData::new(),
-            headers : vec![]
+            packet_data: PacketData::new(),
+            headers: vec![],
         }
     }
 
-    pub fn add_header() {
+    pub fn add_header() {}
 
-    }
-
-    pub fn store_packet_data() {
-        
-    }
+    pub fn store_packet_data() {}
 }

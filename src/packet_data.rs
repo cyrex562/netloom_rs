@@ -1,7 +1,7 @@
 pub struct PacketData {
     pub cap_len: usize,
     pub wire_len: usize,
-    pub data: Vec<u8>
+    pub data: Vec<u8>,
 }
 
 impl PacketData {
@@ -9,7 +9,7 @@ impl PacketData {
         PacketData {
             cap_len: 0,
             wire_len: 0,
-            data: vec![]
+            data: vec![],
         }
     }
 }

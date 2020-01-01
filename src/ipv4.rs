@@ -1,29 +1,29 @@
+use crate::ip_proto::Ipv4Proto;
 ///
 /// ## ipv4.rs
 /// IPv4 Protocol Suite
-/// 
+///
 /// ref: shttps://tools.ietf.org/html/rfc791#section-3.1
-/// 
-
-use crate::util::{mac_to_str, ipv4_to_str, bytes_to_u16, bytes_to_u32, u32_ip4_to_str};
+///
+use crate::util::{bytes_to_u16, bytes_to_u32, ipv4_to_str, mac_to_str, u32_ip4_to_str};
+use byteorder::{BigEndian, ReadBytesExt};
+use log::{debug, error};
 use num_derive::{FromPrimitive, ToPrimitive};
 use num_traits::{FromPrimitive, ToPrimitive};
-use log::{error, debug};
 use crate::ip_proto::{Ipv4Proto};
-
 
 // https://tools.ietf.org/html/rfc791#section-3.1
 #[derive(Copy, Clone, Default)]
 #[repr(C)]
 pub struct Ipv4Header {
     pub version_ihl: u8,
-    pub tos : u8,
-    pub tot_len : u16,
-    pub ip_id : u16,
-    pub flags_fragoff : u16,
-    pub ttl : u8,
-    pub proto : Ipv4Proto,
-    pub chksum : u16,
+    pub tos: u8,
+    pub tot_len: u16,
+    pub ip_id: u16,
+    pub flags_fragoff: u16,
+    pub ttl: u8,
+    pub proto: Ipv4Proto,
+    pub chksum: u16,
     pub src_addr: u32,
     pub dst_addr: u32,
 }
@@ -37,24 +37,34 @@ pub enum Ipv4TosPrecedence {
     Flash = 0b011,
     Immediate = 0b010,
     Priority = 0b001,
-    Routine = 0
+    Routine = 0,
 }
 
 impl Default for Ipv4TosPrecedence {
-    fn default() -> Self { Ipv4TosPrecedence::Routine }
+    fn default() -> Self {
+        Ipv4TosPrecedence::Routine
+    }
 }
 
 impl Ipv4TosPrecedence {
     fn from_byte(b: u8) -> Ipv4TosPrecedence {
-
-        if b & 0b11100000 == 1 { return Ipv4TosPrecedence::NetCtrl }
-        else if b & 0b11100000 == 1 { return Ipv4TosPrecedence::InternetworkControl }
-        else if b & 0b10100000 == 1 { return Ipv4TosPrecedence::CriticEcp }
-        else if b & 0b10000000 == 1 { return Ipv4TosPrecedence::FlashOverride }
-        else if b & 0b01100000 == 1 { return Ipv4TosPrecedence::Flash }
-        else if b & 0b01000000 == 1 { return Ipv4TosPrecedence::Immediate }
-        else if b & 0b00100000 == 1 { return Ipv4TosPrecedence::Priority }
-        else { return Ipv4TosPrecedence::Routine};
+        if b & 0b11100000 == 1 {
+            return Ipv4TosPrecedence::NetCtrl;
+        } else if b & 0b11100000 == 1 {
+            return Ipv4TosPrecedence::InternetworkControl;
+        } else if b & 0b10100000 == 1 {
+            return Ipv4TosPrecedence::CriticEcp;
+        } else if b & 0b10000000 == 1 {
+            return Ipv4TosPrecedence::FlashOverride;
+        } else if b & 0b01100000 == 1 {
+            return Ipv4TosPrecedence::Flash;
+        } else if b & 0b01000000 == 1 {
+            return Ipv4TosPrecedence::Immediate;
+        } else if b & 0b00100000 == 1 {
+            return Ipv4TosPrecedence::Priority;
+        } else {
+            return Ipv4TosPrecedence::Routine;
+        };
     }
 }
 
@@ -65,13 +75,18 @@ pub enum Ipv4TosDelay {
 }
 
 impl Default for Ipv4TosDelay {
-    fn default() -> Self { Ipv4TosDelay::NormalDelay }
+    fn default() -> Self {
+        Ipv4TosDelay::NormalDelay
+    }
 }
 
 impl Ipv4TosDelay {
     fn from_byte(b: u8) -> Ipv4TosDelay {
-        if b & 0b00010000 == 1 { return Ipv4TosDelay::LowDelay }
-        else { return Ipv4TosDelay::NormalDelay };
+        if b & 0b00010000 == 1 {
+            return Ipv4TosDelay::LowDelay;
+        } else {
+            return Ipv4TosDelay::NormalDelay;
+        };
     }
 }
 
@@ -82,14 +97,18 @@ pub enum Ipv4TosThroughput {
 }
 
 impl Default for Ipv4TosThroughput {
-    fn default() -> Self { Ipv4TosThroughput::NormalThroughput }
+    fn default() -> Self {
+        Ipv4TosThroughput::NormalThroughput
+    }
 }
-
 
 impl Ipv4TosThroughput {
     fn from_byte(b: u8) -> Ipv4TosThroughput {
-        if b & 0b000001000 == 1 { return Ipv4TosThroughput::HighThroughput }
-        else { return Ipv4TosThroughput::NormalThroughput }
+        if b & 0b000001000 == 1 {
+            return Ipv4TosThroughput::HighThroughput;
+        } else {
+            return Ipv4TosThroughput::NormalThroughput;
+        }
     }
 }
 
@@ -100,26 +119,31 @@ pub enum Ipv4TosReliability {
 }
 
 impl Default for Ipv4TosReliability {
-    fn default() -> Self { Ipv4TosReliability::NormalReliability }
+    fn default() -> Self {
+        Ipv4TosReliability::NormalReliability
+    }
 }
 
 impl Ipv4TosReliability {
     fn from_byte(b: u8) -> Ipv4TosReliability {
-        if b & 0b000000100 == 1 { return Ipv4TosReliability::HighReliability }
-        else { return Ipv4TosReliability::NormalReliability }; 
+        if b & 0b000000100 == 1 {
+            return Ipv4TosReliability::HighReliability;
+        } else {
+            return Ipv4TosReliability::NormalReliability;
+        };
     }
 }
 
-#[derive(Copy,Clone,Default, Debug)] 
+#[derive(Copy, Clone, Default, Debug)]
 pub struct Ipv4Tos {
-    pub precedence : Ipv4TosPrecedence,
-    pub delay : Ipv4TosDelay,
-    pub throughput : Ipv4TosThroughput,
-    pub reliability : Ipv4TosReliability,
+    pub precedence: Ipv4TosPrecedence,
+    pub delay: Ipv4TosDelay,
+    pub throughput: Ipv4TosThroughput,
+    pub reliability: Ipv4TosReliability,
 }
 
 impl Ipv4Tos {
-    fn new(b : u8) -> Ipv4Tos {
+    fn new(b: u8) -> Ipv4Tos {
         let mut x: Ipv4Tos = Default::default();
         x.precedence = Ipv4TosPrecedence::from_byte(b);
         x.delay = Ipv4TosDelay::from_byte(b);
@@ -129,12 +153,14 @@ impl Ipv4Tos {
     }
 
     fn to_string(self) -> String {
-        format!("precedence: {:?}, delay: {:?}, throughput: {:?}, reliability: {:?}", self.precedence, self.delay, self.throughput, self.reliability)
+        format!(
+            "precedence: {:?}, delay: {:?}, throughput: {:?}, reliability: {:?}",
+            self.precedence, self.delay, self.throughput, self.reliability
+        )
     }
 }
 
-
-#[derive(Copy,Clone, Debug)] 
+#[derive(Copy, Clone, Debug)]
 #[repr(u8)]
 enum Ipv4Flags {
     NotSet = 0,
@@ -145,17 +171,24 @@ enum Ipv4Flags {
 }
 
 impl Default for Ipv4Flags {
-    fn default() -> Self { Ipv4Flags::NotSet }
+    fn default() -> Self {
+        Ipv4Flags::NotSet
+    }
 }
 
 impl Ipv4Flags {
-    fn from_u16(w : u16) -> [Ipv4Flags;2] {
-        let mut out_flags : [Ipv4Flags;2] = [Ipv4Flags::NotSet, Ipv4Flags::NotSet];
-        if w & 0b0100000000000000 == 0  { out_flags[0] = Ipv4Flags::MayFragment }
-        else if  w & 0b0100000000000000 == 1 { out_flags[0] = Ipv4Flags::DontFragment }
-        else if    w & 0b0010000000000000 == 0 { out_flags[1] = Ipv4Flags::LastFragment }
-        else if    w & 0b0010000000000000 == 1 { out_flags[1] = Ipv4Flags::LastFragment }
-        
+    fn from_u16(w: u16) -> [Ipv4Flags; 2] {
+        let mut out_flags: [Ipv4Flags; 2] = [Ipv4Flags::NotSet, Ipv4Flags::NotSet];
+        if w & 0b0100000000000000 == 0 {
+            out_flags[0] = Ipv4Flags::MayFragment
+        } else if w & 0b0100000000000000 == 1 {
+            out_flags[0] = Ipv4Flags::DontFragment
+        } else if w & 0b0010000000000000 == 0 {
+            out_flags[1] = Ipv4Flags::LastFragment
+        } else if w & 0b0010000000000000 == 1 {
+            out_flags[1] = Ipv4Flags::LastFragment
+        }
+
         return out_flags;
     }
 }
@@ -192,7 +225,7 @@ impl Ipv4Header {
     }
 
     pub fn flags(self) -> u16 {
-        let x : u16 = self.flags_fragoff >> 13;
+        let x: u16 = self.flags_fragoff >> 13;
         return x;
     }
 
