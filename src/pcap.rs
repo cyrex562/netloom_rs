@@ -2,7 +2,7 @@
 #![allow(non_camel_case_types)]
 #![allow(dead_code)]
 
-use libc::{c_char, c_int, c_long, c_uchar, c_uint, c_ushort, FILE, sockaddr};
+use libc::{c_char, c_int, c_long, c_uchar, c_uint, c_ushort, sockaddr, FILE};
 use log::{debug, error, info, trace, warn};
 use num_derive::FromPrimitive;
 use std::ffi::CString;
@@ -144,8 +144,6 @@ pub struct pcap_dumper_t {
 //     pub sa_data: [u8; 14],
 // }
 
-
-
 // PCAP_IF_LOOPBACK set if the device is a loopback interface
 // PCAP_IF_UP set if the device is up
 // PCAP_IF_RUNNING set if the device is running
@@ -157,7 +155,7 @@ pub struct pcap_dumper_t {
 // PCAP_IF_CONNECTION_STATUS_DISCONNECTED the adapter is disconnected
 // PCAP_IF_CONNECTION_STATUS_NOT_APPLICABLE the notion of "connected" and "disconnected" don't apply to this interface; for example, it doesn't apply to a loopback device
 #[repr(C)]
-#[derive(Copy,Clone)]
+#[derive(Copy, Clone)]
 pub struct pcap_if_t {
     pub next: *mut pcap_if_t,
     pub name: *mut c_char,
@@ -201,7 +199,6 @@ pub struct pcap_pkthdr {
     pub caplen: u32,
     pub len: u32,
 }
-
 
 #[cfg(target_os = "linux")]
 #[link(name = "pcap")]
@@ -370,11 +367,10 @@ impl PcapIfcInfo {
         PcapIfcInfo {
             name: String::new(),
             description: String::new(),
-            addresses: Vec::<PcapIfcAddrInfo>::new()
+            addresses: Vec::<PcapIfcAddrInfo>::new(),
         }
     }
 }
-
 
 // https://doc.rust-lang.org/nomicon/working-with-unsafe.html
 
@@ -576,14 +572,12 @@ pub unsafe fn extract_addr_dest(addresses: *mut pcap_addr) -> PcapAddr {
 }
 
 pub fn extract_dev_name(curr_dev: *mut pcap_if_t) -> String {
-
     unsafe {
         if (*curr_dev).name.is_null() {
             warn!("name field of interface is null");
             return "".to_string();
         }
     };
-    
 
     let dev_name_cstr: CString = unsafe { CString::from_raw((*curr_dev).name) };
     let dev_name_str_result = dev_name_cstr.into_string();
@@ -593,7 +587,6 @@ pub fn extract_dev_name(curr_dev: *mut pcap_if_t) -> String {
 }
 
 pub fn extract_dev_desc(curr_dev: *mut pcap_if_t) -> String {
-
     unsafe {
         if (*curr_dev).description.is_null() {
             warn!("name field of interface is null");
@@ -613,13 +606,10 @@ pub fn get_net_ifcs() -> Vec<PcapIfcInfo> {
     let mut err_buf: [c_char; 0xff] = [0; 0xff];
     let mut dev_list: *mut pcap_if_t = ptr::null_mut();
     let dev_list_ptr = &mut dev_list as *mut *mut pcap_if_t;
-    let result = unsafe {
-        pcap_findalldevs(dev_list_ptr, err_buf.as_mut_ptr())
-    };
+    let result = unsafe { pcap_findalldevs(dev_list_ptr, err_buf.as_mut_ptr()) };
     if result != 0 {
         panic!("failed to get pcap devices");
     }
-
 
     let mut curr_dev: *mut pcap_if_t = dev_list;
     let mut out_ifc_info: Vec<PcapIfcInfo> = Vec::new();
@@ -727,9 +717,7 @@ pub fn get_cap_handle(ifc_info: &PcapIfcInfo) -> Result<*mut pcap_t, &'static st
 pub fn set_pcap_timeout(cap_handle: *mut pcap_t, timeout_val: c_int) {
     debug!("setting pcap timeout to : {}", timeout_val);
 
-    let result = unsafe {
-        pcap_set_timeout(cap_handle, timeout_val)
-    };
+    let result = unsafe { pcap_set_timeout(cap_handle, timeout_val) };
 
     if result != 0 {
         error!("failed to set pcap timeout");

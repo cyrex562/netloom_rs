@@ -26,22 +26,22 @@ use std::path::Path;
 mod arp;
 mod config;
 mod ethernet;
+mod ip_proto;
 mod ipv4;
+mod ipv6;
 mod packet_data;
 mod packet_headers;
 mod packet_info;
 mod pcap;
 mod udp;
 mod util;
-mod ip_proto;
-mod ipv6;
 
 use crate::ethernet::{EtherType, EthernetFrame};
-use crate::ipv4::{Ipv4Header};
+use crate::ip_proto::Ipv4Proto;
+use crate::ipv4::Ipv4Header;
+use crate::ipv6::Ipv6Header;
 use crate::packet_info::{Layer2Type, PacketInfo};
 use crate::udp::UdpHeader;
-use crate::ip_proto::{Ipv4Proto};
-use crate::ipv6::{Ipv6Header};
 use config::Config;
 
 fn main() {
@@ -161,10 +161,12 @@ fn main() {
             EtherType::Ipv6 => {
                 let ipv6_hdr = Ipv6Header::new(&pkt_info.packet_data.data[frame_ptr..]);
                 info!("IPv6 Header: {}", ipv6_hdr.to_string());
-                pkt_info.headers.push(packet_headers::PacketHeader::Ipv6(ipv6_hdr));
+                pkt_info
+                    .headers
+                    .push(packet_headers::PacketHeader::Ipv6(ipv6_hdr));
                 frame_ptr += std::mem::size_of::<Ipv6Header>();
                 ip_proto = ipv6_hdr.next_hdr;
-            },
+            }
             _ => info!(
                 "unhandled packet type: {:04X}",
                 ether_frame.ether_type as u16
