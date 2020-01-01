@@ -6,11 +6,10 @@ use crate::ip_proto::Ipv4Proto;
 /// ref: shttps://tools.ietf.org/html/rfc791#section-3.1
 ///
 use crate::util::{bytes_to_u16, bytes_to_u32, ipv4_to_str, mac_to_str, u32_ip4_to_str};
-use byteorder::{BigEndian, ReadBytesExt};
 use log::{debug, error};
 use num_derive::{FromPrimitive, ToPrimitive};
 use num_traits::{FromPrimitive, ToPrimitive};
-use crate::ip_proto::{Ipv4Proto};
+
 
 // https://tools.ietf.org/html/rfc791#section-3.1
 #[derive(Copy, Clone, Default)]

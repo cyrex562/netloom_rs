@@ -1,14 +1,13 @@
-use crate::ip_proto::Ipv4Proto;
+
 ///
 /// ## ipv6.rs
 ///
 /// ref: https://tools.ietf.org/html/rfc2460
-
 use crate::util::{bytes_to_u16, bytes_to_u32, ipv6_to_str};
+use crate::ip_proto::Ipv4Proto;
+use log::{debug, error};
 use num_derive::{FromPrimitive, ToPrimitive};
 use num_traits::{FromPrimitive, ToPrimitive};
-use log::{error, debug};
-use crate::ip_proto::Ipv4Proto;
 
 
 // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

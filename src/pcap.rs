@@ -2,7 +2,7 @@
 #![allow(non_camel_case_types)]
 #![allow(dead_code)]
 
-use libc::{c_char, c_int, c_long, c_uchar, c_uint, c_ushort, FILE, sockaddr};
+use libc::{c_char, c_int, c_long, c_uchar, c_uint, c_ushort, sockaddr, FILE};
 use log::{debug, error, warn};
 use num_derive::FromPrimitive;
 use std::ffi::CString;

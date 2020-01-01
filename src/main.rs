@@ -1,10 +1,10 @@
 ///
 /// ## main.rs
-/// 
+///
 /// Main program source file
-/// 
+///
 /// ### note
-/// 
+///
 ///  in some cases where the call to get adapters finds only one device on windows, this is because the npcap driver is not loaded properly. Re-load/re-install npcap to fix this issue. Does this happen after every reboot or just after each update to windows?
 ///
 extern crate clap;
@@ -33,21 +33,18 @@ mod packet_data;
 mod packet_headers;
 mod packet_info;
 mod pcap;
-mod udp;
-mod util;
-mod ip_proto;
-mod ipv6;
 mod tcp;
 mod transport_proto;
+mod udp;
+mod util;
 
 use crate::ethernet::{EtherType, EthernetFrame};
-use crate::ipv4::{Ipv4Header};
-use crate::packet_info::{PacketInfo};
+use crate::ip_proto::Ipv4Proto;
+use crate::ipv4::Ipv4Header;
+use crate::ipv6::Ipv6Header;
+use crate::packet_info::PacketInfo;
+use crate::tcp::TcpHeader;
 use crate::udp::UdpHeader;
-use crate::ip_proto::{Ipv4Proto};
-use crate::ipv6::{Ipv6Header};
-use crate::tcp::{TcpHeader};
-
 use config::Config;
 
 fn main() {
@@ -189,21 +186,27 @@ fn main() {
                         .headers
                         .push(packet_headers::PacketHeader::Udp(udp_hdr));
                     frame_ptr += std::mem::size_of::<UdpHeader>();
-                    
-                },
+                }
                 Ipv4Proto::Tcp => {
                     let tcp_hdr = TcpHeader::new(&pkt_info.packet_data.data[frame_ptr..]);
-                    info!("TCP Header: {:?}", tcp_hdr.to_string(&pkt_info.packet_data.data[frame_ptr + std::mem::size_of::<TcpHeader>()..]));
+                    info!(
+                        "TCP Header: {:?}",
+                        tcp_hdr.to_string(
+                            &pkt_info.packet_data.data
+                                [frame_ptr + std::mem::size_of::<TcpHeader>()..]
+                        )
+                    );
                     frame_ptr += (tcp_hdr.data_off() * 32) as usize;
-                    pkt_info.headers.push(packet_headers::PacketHeader::Tcp(tcp_hdr));
+                    pkt_info
+                        .headers
+                        .push(packet_headers::PacketHeader::Tcp(tcp_hdr));
 
                     // process based on port
                     // if tcp_hdr.src_port == 80 || tcp_hdr.dst_port == 80 {
 
                     // }
-
-                },
-                _ => warn!("unprocessed IP proto: {:?}", ip_proto)
+                }
+                _ => warn!("unprocessed IP proto: {:?}", ip_proto),
             }
         }
 
