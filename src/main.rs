@@ -1,27 +1,27 @@
-//
-//
-// note: in some cases where the call to get adapters finds only one device on windows, this is because the npcap driver is not loaded properly. Re-load/re-install npcap to fix this issue. Does this happen after every reboot or just after each update to windows?
-//
-
-extern crate byteorder;
+///
+/// ## main.rs
+/// 
+/// Main program source file
+/// 
+/// ### note
+/// 
+///  in some cases where the call to get adapters finds only one device on windows, this is because the npcap driver is not loaded properly. Re-load/re-install npcap to fix this issue. Does this happen after every reboot or just after each update to windows?
+///
 extern crate clap;
 extern crate kernel32;
 extern crate libc;
 extern crate num;
 extern crate num_derive;
-extern crate pancurses;
 extern crate user32;
 extern crate winapi;
 extern crate yaml_rust;
 
 use clap::{App, Arg};
-use log::{debug, error, info, trace, warn};
+use log::{debug, error, info, warn};
 use std::error::Error;
 use std::fs::File;
 use std::io::prelude::*;
-use std::io::stdin;
 use std::path::Path;
-// use pancurses::{initscr, endwin, Input};
 
 mod arp;
 mod config;
@@ -35,13 +35,19 @@ mod packet_info;
 mod pcap;
 mod udp;
 mod util;
+mod ip_proto;
+mod ipv6;
+mod tcp;
+mod transport_proto;
 
 use crate::ethernet::{EtherType, EthernetFrame};
-use crate::ip_proto::Ipv4Proto;
-use crate::ipv4::Ipv4Header;
-use crate::ipv6::Ipv6Header;
-use crate::packet_info::{Layer2Type, PacketInfo};
+use crate::ipv4::{Ipv4Header};
+use crate::packet_info::{PacketInfo};
 use crate::udp::UdpHeader;
+use crate::ip_proto::{Ipv4Proto};
+use crate::ipv6::{Ipv6Header};
+use crate::tcp::{TcpHeader};
+
 use config::Config;
 
 fn main() {
@@ -175,18 +181,34 @@ fn main() {
         count += 1;
 
         if ether_frame.ether_type == EtherType::Ipv4 || ether_frame.ether_type == EtherType::Ipv6 {
-            if ip_proto == Ipv4Proto::Udp {
-                let udp_hdr = UdpHeader::new(&pkt_info.packet_data.data[frame_ptr..]);
-                pkt_info
-                    .headers
-                    .push(packet_headers::PacketHeader::Udp(udp_hdr));
-                frame_ptr += std::mem::size_of::<UdpHeader>();
-                info!("UDP Header: {}", udp_hdr.to_string());
-            } else {
-                info!("unhandled IP proto: {:?}", ip_proto);
+            match ip_proto {
+                Ipv4Proto::Udp => {
+                    let udp_hdr = UdpHeader::new(&pkt_info.packet_data.data[frame_ptr..]);
+                    info!("UDP Header: {}", udp_hdr.to_string());
+                    pkt_info
+                        .headers
+                        .push(packet_headers::PacketHeader::Udp(udp_hdr));
+                    frame_ptr += std::mem::size_of::<UdpHeader>();
+                    
+                },
+                Ipv4Proto::Tcp => {
+                    let tcp_hdr = TcpHeader::new(&pkt_info.packet_data.data[frame_ptr..]);
+                    info!("TCP Header: {:?}", tcp_hdr.to_string(&pkt_info.packet_data.data[frame_ptr + std::mem::size_of::<TcpHeader>()..]));
+                    frame_ptr += (tcp_hdr.data_off() * 32) as usize;
+                    pkt_info.headers.push(packet_headers::PacketHeader::Tcp(tcp_hdr));
+
+                    // process based on port
+                    // if tcp_hdr.src_port == 80 || tcp_hdr.dst_port == 80 {
+
+                    // }
+
+                },
+                _ => warn!("unprocessed IP proto: {:?}", ip_proto)
             }
         }
-    }
+
+        // Guess at traffic based on port
+    } // End of packet capture loop
 
     // close pcap handle
     if !cap_handle.is_null() {
@@ -196,3 +218,5 @@ fn main() {
     debug!("finished!");
     return;
 }
+
+// END OF FILE

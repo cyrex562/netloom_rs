@@ -10,6 +10,7 @@ use byteorder::{BigEndian, ReadBytesExt};
 use log::{debug, error};
 use num_derive::{FromPrimitive, ToPrimitive};
 use num_traits::{FromPrimitive, ToPrimitive};
+use crate::ip_proto::{Ipv4Proto};
 
 // https://tools.ietf.org/html/rfc791#section-3.1
 #[derive(Copy, Clone, Default)]

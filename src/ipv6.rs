@@ -3,14 +3,13 @@ use crate::ip_proto::Ipv4Proto;
 /// ## ipv6.rs
 ///
 /// ref: https://tools.ietf.org/html/rfc2460
-///
-use crate::util::{
-    bytes_to_u16, bytes_to_u32, ipv4_to_str, ipv6_to_str, mac_to_str, u32_ip4_to_str,
-};
-use byteorder::{BigEndian, ReadBytesExt};
-use log::{debug, error};
+
+use crate::util::{bytes_to_u16, bytes_to_u32, ipv6_to_str};
 use num_derive::{FromPrimitive, ToPrimitive};
 use num_traits::{FromPrimitive, ToPrimitive};
+use log::{error, debug};
+use crate::ip_proto::Ipv4Proto;
+
 
 // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // |Version| Traffic Class |           Flow Label                  |
