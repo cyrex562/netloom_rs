@@ -1,7 +1,7 @@
+use crate::util::mac_to_str;
+use log::error;
 use num_derive::{FromPrimitive, ToPrimitive};
 use num_traits::{FromPrimitive, ToPrimitive};
-use crate::util::{mac_to_str};
-use log::{error};
 
 #[derive(FromPrimitive, Copy, Clone, PartialEq, Debug)]
 #[repr(u16)]
@@ -47,7 +47,7 @@ pub enum EtherType {
     SampledValXmit = 0x88ba,
     Lldp = 0x88cc,
     Sercos3 = 0x88cd,
-    WaveShortMsgProto = 0x88dc, 
+    WaveShortMsgProto = 0x88dc,
     HomePlugAvMme = 0x88e1,
     MediaRedundancyProto = 0x88e3,
     MacSec = 0x88e5,
@@ -63,11 +63,13 @@ pub enum EtherType {
     HighAvailSeamlessRedundancy = 0x892f,
     EtherConfigTestingProto = 0x9000,
     VlanDoubleTagging = 0x9100,
-    VeritasTechLowLatencyTrans = 0xcafe
+    VeritasTechLowLatencyTrans = 0xcafe,
 }
 
 impl Default for EtherType {
-    fn default() -> Self { EtherType::NotSet }
+    fn default() -> Self {
+        EtherType::NotSet
+    }
 }
 
 impl EtherType {
@@ -75,14 +77,14 @@ impl EtherType {
     pub const DNA_ROUTING: EtherType = EtherType::DecnetPhase4;
     pub const SHORTEST_PATH_BRIDGING: EtherType = EtherType::VlanTag;
 
-    pub fn from_bytes(b : &[u8]) -> EtherType {
+    pub fn from_bytes(b: &[u8]) -> EtherType {
         let type_val = u16::to_be((b[1] as u16) << 8 | b[0] as u16);
         let val = match EtherType::from_u16(type_val) {
             Some(val) => val,
             None => {
                 error!("invalid/unhandled Ether Type: {:02X}", type_val);
                 EtherType::NotSet
-            } 
+            }
         };
         return val;
     }
@@ -91,14 +93,14 @@ impl EtherType {
 #[derive(Copy, Clone, Default)]
 #[repr(C)]
 pub struct EthernetFrame {
-    pub dest_addr: [u8;6],
-    pub src_addr: [u8;6],
-    pub ether_type: EtherType
+    pub dest_addr: [u8; 6],
+    pub src_addr: [u8; 6],
+    pub ether_type: EtherType,
 }
 
 impl EthernetFrame {
-    pub fn new(raw_packet_data : &[u8]) ->  EthernetFrame {
-        let mut x : EthernetFrame = Default::default();
+    pub fn new(raw_packet_data: &[u8]) -> EthernetFrame {
+        let mut x: EthernetFrame = Default::default();
         x.dest_addr.copy_from_slice(&raw_packet_data[0..6]);
         x.src_addr.copy_from_slice(&raw_packet_data[6..12]);
         x.ether_type = EtherType::from_bytes(&raw_packet_data[12..14]);
@@ -106,7 +108,12 @@ impl EthernetFrame {
     }
 
     pub fn to_string(self) -> String {
-        return format!("src: {}, dst: {}, type: {:?}", mac_to_str(&self.src_addr), mac_to_str(&self.dest_addr), self.ether_type);
+        return format!(
+            "src: {}, dst: {}, type: {:?}",
+            mac_to_str(&self.src_addr),
+            mac_to_str(&self.dest_addr),
+            self.ether_type
+        );
     }
 }
 
@@ -114,11 +121,11 @@ impl EthernetFrame {
 pub struct LlcPacket {
     dsap: u8, // dest svc access point, dest net layer proto type
     ssap: u8, // src svc access point, src net layer proto type
-    control: u8
+    control: u8,
 }
 
 #[repr(C)]
 pub struct EtherSnapPacket {
-    org_code: [u8;3], // org code, which org assigned ether type field,
-    ether_type: [u8;2], // which upper layer proto will use the ether frame
+    org_code: [u8; 3],   // org code, which org assigned ether type field,
+    ether_type: [u8; 2], // which upper layer proto will use the ether frame
 }

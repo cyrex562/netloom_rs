@@ -1,20 +1,16 @@
 ///
 /// ## tcp.rs
-/// 
+///
 /// ref: https://tools.ietf.org/html/rfc793
 /// ref: https://tools.ietf.org/html/rfc7323
 /// ref: https://tools.ietf.org/html/rfc2018
-
 use crate::util::{bytes_to_u16, bytes_to_u32};
+use log::{debug, warn};
 use num_derive::{FromPrimitive, ToPrimitive};
 use num_traits::{FromPrimitive, ToPrimitive};
-use log::{debug, warn};
-
-
 
 // options
 // https://www.iana.org/assignments/tcp-parameters/tcp-parameters.xhtml
-
 
 #[derive(Copy, Clone, PartialEq, FromPrimitive, Debug)]
 #[repr(u8)]
@@ -42,52 +38,52 @@ pub enum TcpOptKind {
     TcpFastOpenCookie = 34,
     Rfc3692Exp1 = 253,
     Rfc3692Exp2 = 254,
-    Reserved = 255
+    Reserved = 255,
 }
 
 // kind : length : meaning
 // 0 : 1 : end of option list: RFC793
-#[derive(Copy,Clone,Debug,Default)]
+#[derive(Copy, Clone, Debug, Default)]
 #[repr(C)]
 pub struct TcpOptEndOfList {
-    pub kind : TcpOptKind
+    pub kind: TcpOptKind,
 }
 
 impl TcpOptEndOfList {
     pub fn new() -> TcpOptEndOfList {
-        let mut x : TcpOptEndOfList = Default::default();
+        let mut x: TcpOptEndOfList = Default::default();
         x.kind = TcpOptKind::EndOfList;
         return x;
-    } 
+    }
 }
 
 // 1 : 1 : nop: RFC793
-#[derive(Copy,Clone,Debug,Default)]
+#[derive(Copy, Clone, Debug, Default)]
 #[repr(C)]
 pub struct TcpOptNop {
-    pub kind : TcpOptKind
+    pub kind: TcpOptKind,
 }
 
 impl TcpOptNop {
     pub fn new() -> TcpOptNop {
-        let mut x : TcpOptNop = Default::default();
+        let mut x: TcpOptNop = Default::default();
         x.kind = TcpOptKind::Nop;
         return x;
     }
 }
 
 // 2 : 4 : max seg sz: RFC793
-#[derive(Copy,Clone,Debug,Default)]
+#[derive(Copy, Clone, Debug, Default)]
 #[repr(C)]
 pub struct TcpOptMaxSegSz {
-    pub kind : TcpOptKind,
+    pub kind: TcpOptKind,
     pub length: u8,
-    pub max_seg_sz : u16
+    pub max_seg_sz: u16,
 }
 
 impl TcpOptMaxSegSz {
     pub fn new() -> TcpOptMaxSegSz {
-        let mut x : TcpOptMaxSegSz = Default::default();
+        let mut x: TcpOptMaxSegSz = Default::default();
         x.kind = TcpOptKind::MaxSegSz;
         x.length = 4;
         x.max_seg_sz = 0;
@@ -95,19 +91,18 @@ impl TcpOptMaxSegSz {
     }
 }
 
-
 // 3 : 3 : win scale: RFC7323
-#[derive(Copy,Clone,Debug,Default)]
+#[derive(Copy, Clone, Debug, Default)]
 #[repr(C)]
 pub struct TcpOptWinScale {
-    pub kind : TcpOptKind,
+    pub kind: TcpOptKind,
     pub length: u8,
-    pub shift_cnt : u8
+    pub shift_cnt: u8,
 }
 
 impl TcpOptWinScale {
     pub fn new() -> TcpOptWinScale {
-        let mut x : TcpOptWinScale = Default::default();
+        let mut x: TcpOptWinScale = Default::default();
         x.kind = TcpOptKind::WinScale;
         x.length = 3;
         x.shift_cnt = 0;
@@ -116,16 +111,16 @@ impl TcpOptWinScale {
 }
 
 // 4 : 2 : SACK permitted: RFC2018
-#[derive(Copy,Clone,Debug,Default)]
+#[derive(Copy, Clone, Debug, Default)]
 #[repr(C)]
 pub struct TcpOptSackOk {
-    pub kind : TcpOptKind,
+    pub kind: TcpOptKind,
     pub length: u8,
 }
 
 impl TcpOptSackOk {
     pub fn new() -> TcpOptSackOk {
-        let mut x : TcpOptSackOk = Default::default();
+        let mut x: TcpOptSackOk = Default::default();
         x.kind = TcpOptKind::SackOk;
         x.length = 2;
         return x;
@@ -133,37 +128,37 @@ impl TcpOptSackOk {
 }
 
 // 5 : N : SACK: RFC2018
-#[derive(Copy,Clone,Debug,Default)]
+#[derive(Copy, Clone, Debug, Default)]
 #[repr(C)]
 pub struct TcpOptSack {
-    pub kind : TcpOptKind,
+    pub kind: TcpOptKind,
     pub length: u8,
-    pub blocks : [u32;4]
+    pub blocks: [u32; 4],
 }
 
 impl TcpOptSack {
     pub fn new() -> TcpOptSack {
-        let mut x : TcpOptSack = Default::default();
+        let mut x: TcpOptSack = Default::default();
         x.kind = TcpOptKind::Sack;
         x.length = 0;
-        x.blocks = [0,0,0,0];
+        x.blocks = [0, 0, 0, 0];
         return x;
     }
 }
 
 // 8 : 10 : Timestamps: RFC7323
-#[derive(Copy,Clone,Debug,Default)]
+#[derive(Copy, Clone, Debug, Default)]
 #[repr(C)]
 pub struct TcpOptTimestamp {
-    pub kind : TcpOptKind,
-    pub length : u8,
-    pub ts_val : u32,
-    pub ts_echo_reply : u32,
+    pub kind: TcpOptKind,
+    pub length: u8,
+    pub ts_val: u32,
+    pub ts_echo_reply: u32,
 }
 
 impl TcpOptTimestamp {
     pub fn new() -> TcpOptTimestamp {
-        let mut x : TcpOptTimestamp = Default::default();
+        let mut x: TcpOptTimestamp = Default::default();
         x.kind = TcpOptKind::Timestamp;
         x.length = 10;
         x.ts_val = 0;
@@ -171,7 +166,6 @@ impl TcpOptTimestamp {
         return x;
     }
 }
-
 
 // 16 : 1 : Skeeter: NA
 // 17 : 1 : Bubba: NA
@@ -194,10 +188,10 @@ impl TcpOptTimestamp {
 // 254 : N : RFC3692 Experiment 2
 // 255 : Reserved
 
-
-
 impl Default for TcpOptKind {
-    fn default() -> Self { TcpOptKind::Reserved }
+    fn default() -> Self {
+        TcpOptKind::Reserved
+    }
 }
 
 #[derive(Debug)]
@@ -269,7 +263,6 @@ pub enum TcpOptions {
 // 6: Middlebox interference
 // 7-0xff: Unassigned
 
-
 //  0                   1                   2                   3
 // 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -290,7 +283,6 @@ pub enum TcpOptions {
 // |                             data                              |
 // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-
 #[derive(Copy, Clone, PartialEq, FromPrimitive, Debug)]
 #[repr(C)]
 pub enum TcpControlBits {
@@ -302,8 +294,6 @@ pub enum TcpControlBits {
     Syn,
     Fin,
 }
-
-
 
 // src port : u16
 // dst port : u16
@@ -324,19 +314,19 @@ pub enum TcpControlBits {
 #[derive(Copy, Clone, Default, Debug)]
 #[repr(C)]
 pub struct TcpHeader {
-    src_port : u16,
-    dst_port : u16,
-    seq_num : u32,
-    ack_num : u32,
-    data_off_reserved_control_bits : u16,
-    window : u16,
-    checksum : u16,
-    urg_ptr : u16
+    src_port: u16,
+    dst_port: u16,
+    seq_num: u32,
+    ack_num: u32,
+    data_off_reserved_control_bits: u16,
+    window: u16,
+    checksum: u16,
+    urg_ptr: u16,
 }
 
 impl TcpHeader {
-    pub fn new(raw : &[u8]) -> TcpHeader {
-        let mut x : TcpHeader = Default::default();
+    pub fn new(raw: &[u8]) -> TcpHeader {
+        let mut x: TcpHeader = Default::default();
         x.src_port = bytes_to_u16(&raw[0..]);
         x.dst_port = bytes_to_u16(&raw[2..]);
         x.seq_num = bytes_to_u32(&raw[4..]);
@@ -351,14 +341,17 @@ impl TcpHeader {
     // decode data_off
     pub fn data_off(self) -> u16 {
         let x = (self.data_off_reserved_control_bits & 0b1111000000000000) >> 12;
-        debug!("raw: {:X}, data offset: {}", self.data_off_reserved_control_bits, x);
+        debug!(
+            "raw: {:X}, data offset: {}",
+            self.data_off_reserved_control_bits, x
+        );
         return x;
     }
 
     // decode control_bits
     pub fn control_bits(self) -> Vec<TcpControlBits> {
         // let mut out_bits : [TcpControlBits;6] = [TcpControlBits::None,TcpControlBits::None,TcpControlBits::None,TcpControlBits::None,TcpControlBits::None,TcpControlBits::None];
-        let mut out_bits : Vec<TcpControlBits> = Vec::new();
+        let mut out_bits: Vec<TcpControlBits> = Vec::new();
         let ctrl_field: u16 = self.data_off_reserved_control_bits & 0x3f;
         // debug!("field: 0b{:016b} (0x{:02X})", ctrl_field, ctrl_field);
         if ctrl_field & 0x20 > 0 {
@@ -367,7 +360,7 @@ impl TcpHeader {
         if ctrl_field & 0x10 > 0 {
             out_bits.push(TcpControlBits::Ack);
         }
-        if ctrl_field & 0x08 > 0  {
+        if ctrl_field & 0x08 > 0 {
             out_bits.push(TcpControlBits::Psh);
         }
         if ctrl_field & 0x04 > 0 {
@@ -378,69 +371,70 @@ impl TcpHeader {
         }
         if ctrl_field & 0x01 > 0 {
             out_bits.push(TcpControlBits::Fin);
-        } 
+        }
         return out_bits;
     }
 
     // decode options;
     pub fn decode_options(self, opts: &[u8]) -> Vec<TcpOptions> {
-        let mut options : Vec<TcpOptions> = Vec::new();
-        let doff : usize = (self.data_off() * 4) as usize;
+        let mut options: Vec<TcpOptions> = Vec::new();
+        let doff: usize = (self.data_off() * 4) as usize;
         if (doff) > 20 {
-            let mut ptr : usize = 0;
+            let mut ptr: usize = 0;
             loop {
-                if ptr >= (doff - 20) { break; }
-                let kind : TcpOptKind = TcpOptKind::from_u8(opts[ptr]).unwrap();
+                if ptr >= (doff - 20) {
+                    break;
+                }
+                let kind: TcpOptKind = TcpOptKind::from_u8(opts[ptr]).unwrap();
                 match kind {
                     TcpOptKind::EndOfList => break,
                     TcpOptKind::Nop => {
                         let x = TcpOptNop::new();
                         options.push(TcpOptions::Nop(x));
                         ptr += std::mem::size_of::<TcpOptNop>()
-                    },
+                    }
                     TcpOptKind::MaxSegSz => {
                         let mut x = TcpOptMaxSegSz::new();
-                        x.max_seg_sz = bytes_to_u16(&opts[ptr+2..]);
+                        x.max_seg_sz = bytes_to_u16(&opts[ptr + 2..]);
                         options.push(TcpOptions::MaxSegSz(x));
                         ptr += std::mem::size_of::<TcpOptMaxSegSz>()
-                    },
+                    }
                     TcpOptKind::WinScale => {
                         let mut x = TcpOptWinScale::new();
-                        x.shift_cnt = opts[ptr+2];
+                        x.shift_cnt = opts[ptr + 2];
                         options.push(TcpOptions::WinScale(x));
                         ptr += std::mem::size_of::<TcpOptWinScale>()
-                    },
+                    }
                     TcpOptKind::SackOk => {
                         let x = TcpOptSackOk::new();
                         options.push(TcpOptions::SackOk(x));
                         ptr += std::mem::size_of::<TcpOptSackOk>()
-                    },
+                    }
                     TcpOptKind::Sack => {
                         let mut x = TcpOptSack::new();
-                        x.length = opts[ptr+1];
-                        let num_dw : usize = ((x.length - 2) / 32) as usize;
-                        let mut curr_dw : usize = 0;
+                        x.length = opts[ptr + 1];
+                        let num_dw: usize = ((x.length - 2) / 32) as usize;
+                        let mut curr_dw: usize = 0;
                         loop {
                             if curr_dw == num_dw {
                                 break;
                             }
                             let dw_ptr = ptr + 2 + (curr_dw as usize) * 4;
                             x.blocks[curr_dw] = bytes_to_u32(&opts[dw_ptr..]);
-                            curr_dw +=1;
+                            curr_dw += 1;
                         }
                         options.push(TcpOptions::Sack(x));
                         ptr += x.length as usize
-                    },
+                    }
                     TcpOptKind::Timestamp => {
                         let mut x = TcpOptTimestamp::new();
                         x.ts_val = bytes_to_u32(&opts[ptr + 2..]);
                         x.ts_echo_reply = bytes_to_u32(&opts[ptr + 2 + 4..]);
                         options.push(TcpOptions::Timestamp(x));
                         ptr += x.length as usize
-                    },
-                    _ => warn!("unprocessed tcp opt kind: {:?}", kind)
+                    }
+                    _ => warn!("unprocessed tcp opt kind: {:?}", kind),
                 };
-
             }
         }
         return options;
@@ -451,4 +445,3 @@ impl TcpHeader {
         format!("Src Port: {}, Dst Port: {}, Seq #: {:X}, Ack #: {:X}, Data Off: {}, Control Bits: {:?}, Window: {}, Checksum: {:X}, Urg Ptr: {:X}, Options: {:?}", self.src_port, self.dst_port, self.seq_num, self.ack_num, self.data_off(), self.control_bits(), self.window, self.checksum, self.urg_ptr, self.decode_options(opts_raw))
     }
 }
-

@@ -1,11 +1,10 @@
 /// ##arp.rs
 /// Functions for parsing and generating ARP protocol messages
-/// 
-
-use crate::util::{mac_to_str, ipv4_to_str};
+///
+use crate::util::{ipv4_to_str, mac_to_str};
+use log::{debug, error};
 use num_derive::{FromPrimitive, ToPrimitive};
 use num_traits::{FromPrimitive, ToPrimitive};
-use log::{error, debug};
 
 // ref: http://www.networksorcery.com/enp/protocol/arp.htm
 
@@ -23,7 +22,7 @@ pub enum ArpHardwareType {
     Hyperchannel = 8,
     Lanstar = 9,
     AutonetShortAddr = 10,
-    LocalTalk = 11, 
+    LocalTalk = 11,
     LocalNet = 12,
     Ultralink = 13,
     Smds = 14,
@@ -52,7 +51,7 @@ pub enum ArpHardwareType {
     // 37 - 255 NOT set
     HwExp2 = 256,
     // 257 - 65534
-    ReservedEnd = 65535
+    ReservedEnd = 65535,
 }
 
 impl ArpHardwareType {
@@ -63,21 +62,23 @@ impl ArpHardwareType {
             None => {
                 error!("invalid/unhandled hardware type: {:02X}", type_val);
                 ArpHardwareType::ReservedEnd
-            } 
+            }
         };
         return val;
     }
 }
 
 impl Default for ArpHardwareType {
-    fn default() -> Self { ArpHardwareType::ReservedEnd }
+    fn default() -> Self {
+        ArpHardwareType::ReservedEnd
+    }
 }
 
 #[derive(Copy, Clone, PartialEq, FromPrimitive, Debug)]
 #[repr(u16)]
 pub enum ArpProtoType {
     NotSet = 0,
-    Ip = 0x0800
+    Ip = 0x0800,
 }
 
 impl ArpProtoType {
@@ -88,14 +89,16 @@ impl ArpProtoType {
             None => {
                 error!("invalid/unhandled proto type: {:02X}", type_val);
                 ArpProtoType::NotSet
-            } 
+            }
         };
         return val;
     }
 }
 
 impl Default for ArpProtoType {
-    fn default() -> Self { ArpProtoType::NotSet }
+    fn default() -> Self {
+        ArpProtoType::NotSet
+    }
 }
 
 #[derive(Copy, Clone, PartialEq, FromPrimitive, Debug)]
@@ -115,11 +118,13 @@ pub enum ArpOpcode {
     MarsMulti = 11,
     MarsMserv = 12,
     // 13-65534
-    ReservedEnd = 65535
+    ReservedEnd = 65535,
 }
 
 impl Default for ArpOpcode {
-    fn default() -> Self { ArpOpcode::Reserved}
+    fn default() -> Self {
+        ArpOpcode::Reserved
+    }
 }
 
 impl ArpOpcode {
@@ -130,25 +135,24 @@ impl ArpOpcode {
             None => {
                 error!("invalid/unhandled opcode: {:02X}", type_val);
                 ArpOpcode::Reserved
-            } 
+            }
         };
         return val;
     }
 }
 
-
 #[derive(Copy, Clone, Default)]
 #[repr(C)]
 pub struct ArpPacket {
-    pub hw_type : ArpHardwareType,
-    pub proto_type : ArpProtoType,
-    pub hw_addr_len : u8,
-    pub proto_addr_len : u8,
-    pub opcode : ArpOpcode,
-    pub snd_hw_addr : [u8;6],
-    pub snd_proto_addr : [u8;4],
-    pub tgt_hw_addr : [u8;6],
-    pub tgt_proto_addr : [u8;4]
+    pub hw_type: ArpHardwareType,
+    pub proto_type: ArpProtoType,
+    pub hw_addr_len: u8,
+    pub proto_addr_len: u8,
+    pub opcode: ArpOpcode,
+    pub snd_hw_addr: [u8; 6],
+    pub snd_proto_addr: [u8; 4],
+    pub tgt_hw_addr: [u8; 6],
+    pub tgt_proto_addr: [u8; 4],
 }
 
 impl ArpPacket {

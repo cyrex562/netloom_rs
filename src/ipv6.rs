@@ -1,14 +1,13 @@
+use crate::ip_proto::Ipv4Proto;
 ///
 /// ## ipv6.rs
-/// 
+///
 /// ref: https://tools.ietf.org/html/rfc2460
-/// 
-
+///
 use crate::util::{bytes_to_u16, bytes_to_u32, ipv6_to_str};
+use log::{debug, error};
 use num_derive::{FromPrimitive, ToPrimitive};
 use num_traits::{FromPrimitive, ToPrimitive};
-use log::{error, debug};
-use crate::ip_proto::Ipv4Proto;
 
 // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // |Version| Traffic Class |           Flow Label                  |
@@ -33,29 +32,28 @@ use crate::ip_proto::Ipv4Proto;
 // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //
 // version: 4 b: 6
-// traffic class: 8 b : 
-// flow label: 20 b : 
+// traffic class: 8 b :
+// flow label: 20 b :
 // payload len : u16 : len of the payload
 // next hdr : u8: IP proto
 // hop limit : u8: decremented by each router until zero, then discarded
 // src addr : u128
 // dst addr : u128
 
-
 #[derive(Copy, Clone, Default)]
 #[repr(C)]
 pub struct Ipv6Header {
-    pub ver_class_flow : u32,
-    pub payload_len : u16,
-    pub next_hdr : Ipv4Proto,
-    pub hop_limit : u8,
-    pub src_addr : [u8;16],
-    pub dst_addr : [u8;16],
+    pub ver_class_flow: u32,
+    pub payload_len: u16,
+    pub next_hdr: Ipv4Proto,
+    pub hop_limit: u8,
+    pub src_addr: [u8; 16],
+    pub dst_addr: [u8; 16],
 }
 
 impl Ipv6Header {
-    pub fn new(raw : &[u8]) -> Ipv6Header {
-        let mut x : Ipv6Header = Default::default();
+    pub fn new(raw: &[u8]) -> Ipv6Header {
+        let mut x: Ipv6Header = Default::default();
         x.ver_class_flow = bytes_to_u32(&raw[0..]);
         x.payload_len = bytes_to_u16(&raw[4..]);
         x.next_hdr = Ipv4Proto::from_byte(raw[6]);
@@ -67,19 +65,19 @@ impl Ipv6Header {
 
     // get version
     pub fn version(self) -> u32 {
-        let x = (self.ver_class_flow & 0b111100000000000000000000000000 ) >> 28;
+        let x = (self.ver_class_flow & 0b111100000000000000000000000000) >> 28;
         return x;
     }
 
     // get class
     pub fn class(self) -> u32 {
-        let x = (self.ver_class_flow & 0b00001111111100000000000000000000 ) >> 20;
+        let x = (self.ver_class_flow & 0b00001111111100000000000000000000) >> 20;
         return x;
     }
 
     // get flow label
     pub fn flow_label(self) -> u32 {
-        let x = (self.ver_class_flow & 0b00000000000011111111111111111111 );
+        let x = (self.ver_class_flow & 0b00000000000011111111111111111111);
         return x;
     }
 
@@ -97,6 +95,4 @@ impl Ipv6Header {
     pub fn to_string(self) -> String {
         format!("Version: {}, Traffic Class: {}, Flow Label: {:X}, Payload Len: {}, Next Header: {:?}, Hop Limit: {}, Src Addr: {}, Dst Addr: {}", self.version(), self.class(), self.flow_label(), self.payload_len, self.next_hdr, self.hop_limit, self.src_addr_str(), self.dst_addr_str())
     }
-
 }
-
