@@ -5,8 +5,8 @@ pub struct PacketData {
 }
 
 impl PacketData {
-    pub fn new() -> PacketData {
-        PacketData {
+    pub fn new() -> Self {
+        Self {
             cap_len: 0,
             wire_len: 0,
             data: vec![],

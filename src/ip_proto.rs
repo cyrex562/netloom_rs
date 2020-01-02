@@ -157,17 +157,17 @@ pub enum Ipv4Proto {
 
 impl Default for Ipv4Proto {
     fn default() -> Self {
-        Ipv4Proto::Reserved
+        Self::Reserved
     }
 }
 
 impl Ipv4Proto {
-    pub fn from_byte(b: u8) -> Ipv4Proto {
-        match Ipv4Proto::from_u8(b) {
+    pub fn from_byte(b: u8) -> Self {
+        match Self::from_u8(b) {
             Some(val) => val,
             None => {
                 error!("invalid/unhandled IPv4 proto: {}", b);
-                Ipv4Proto::Reserved
+                Self::Reserved
             }
         }
     }

@@ -50,8 +50,8 @@ pub struct TcpOptEndOfList {
 }
 
 impl TcpOptEndOfList {
-    pub fn new() -> TcpOptEndOfList {
-        TcpOptEndOfList {
+    pub fn new() -> Self {
+        Self {
             kind: TcpOptKind::EndOfList
         }
     }
@@ -65,8 +65,8 @@ pub struct TcpOptNop {
 }
 
 impl TcpOptNop {
-    pub fn new() -> TcpOptNop {
-        TcpOptNop {
+    pub fn new() -> Self {
+        Self {
             kind: TcpOptKind::Nop
         }
     }
@@ -82,8 +82,8 @@ pub struct TcpOptMaxSegSz {
 }
 
 impl TcpOptMaxSegSz {
-    pub fn new() -> TcpOptMaxSegSz {
-        TcpOptMaxSegSz {
+    pub fn new() -> Self {
+        Self {
             kind: TcpOptKind::MaxSegSz,
             length: 4,
             max_seg_sz: 0
@@ -101,8 +101,8 @@ pub struct TcpOptWinScale {
 }
 
 impl TcpOptWinScale {
-    pub fn new() -> TcpOptWinScale {
-        TcpOptWinScale {
+    pub fn new() -> Self {
+        Self {
             kind: TcpOptKind::WinScale,
             length: 3,
             shift_cnt: 0
@@ -119,8 +119,8 @@ pub struct TcpOptSackOk {
 }
 
 impl TcpOptSackOk {
-    pub fn new() -> TcpOptSackOk {
-        TcpOptSackOk {
+    pub fn new() -> Self {
+        Self {
             kind: TcpOptKind::SackOk,
             length: 2
         }
@@ -137,8 +137,8 @@ pub struct TcpOptSack {
 }
 
 impl TcpOptSack {
-    pub fn new() -> TcpOptSack {
-        TcpOptSack {
+    pub fn new() -> Self {
+        Self {
             kind: TcpOptKind::Sack,
             length: 0,
             blocks: [0, 0, 0, 0]
@@ -157,8 +157,8 @@ pub struct TcpOptTimestamp {
 }
 
 impl TcpOptTimestamp {
-    pub fn new() -> TcpOptTimestamp {
-        TcpOptTimestamp {
+    pub fn new() -> Self {
+        Self {
             kind: TcpOptKind::Timestamp,
             length: 10,
             ts_val: 0,
@@ -190,7 +190,7 @@ impl TcpOptTimestamp {
 
 impl Default for TcpOptKind {
     fn default() -> Self {
-        TcpOptKind::Reserved
+        Self::Reserved
     }
 }
 
@@ -325,8 +325,8 @@ pub struct TcpHeader {
 }
 
 impl TcpHeader {
-    pub fn new(raw: &[u8]) -> TcpHeader {
-        TcpHeader {
+    pub fn new(raw: &[u8]) -> Self {
+        Self {
             src_port: bytes_to_u16(&raw[0..]),
             dst_port: bytes_to_u16(&raw[2..]),
             seq_num: bytes_to_u32(&raw[4..]),

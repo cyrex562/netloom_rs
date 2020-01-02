@@ -53,8 +53,8 @@ pub struct Ipv6Header {
 }
 
 impl Ipv6Header {
-    pub fn new(raw: &[u8]) -> Ipv6Header {
-        let mut x: Ipv6Header = Default::default();
+    pub fn new(raw: &[u8]) -> Self {
+        let mut x: Self = Default::default();
         x.ver_class_flow = bytes_to_u32(&raw[0..]);
         x.payload_len = bytes_to_u16(&raw[4..]);
         x.next_hdr = Ipv4Proto::from_byte(raw[6]);

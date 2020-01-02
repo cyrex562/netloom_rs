@@ -56,13 +56,13 @@ pub enum ArpHardwareType {
 }
 
 impl ArpHardwareType {
-    pub fn from_bytes(b: &[u8]) -> ArpHardwareType {
+    pub fn from_bytes(b: &[u8]) -> Self {
         let type_val = u16::to_be((b[1] as u16) << 8 | b[0] as u16);
-        match ArpHardwareType::from_u16(type_val) {
+        match Self::from_u16(type_val) {
             Some(val) => val,
             None => {
                 error!("invalid/unhandled hardware type: {:02X}", type_val);
-                ArpHardwareType::ReservedEnd
+                Self::ReservedEnd
             }
         }
     }
@@ -70,7 +70,7 @@ impl ArpHardwareType {
 
 impl Default for ArpHardwareType {
     fn default() -> Self {
-        ArpHardwareType::ReservedEnd
+        Self::ReservedEnd
     }
 }
 
@@ -82,13 +82,13 @@ pub enum ArpProtoType {
 }
 
 impl ArpProtoType {
-    fn from_bytes(b: &[u8]) -> ArpProtoType {
+    fn from_bytes(b: &[u8]) -> Self {
         let type_val = u16::to_be((b[1] as u16) << 8 | b[0] as u16);
-        match ArpProtoType::from_u16(type_val) {
+        match Self::from_u16(type_val) {
             Some(val) => val,
             None => {
                 error!("invalid/unhandled proto type: {:02X}", type_val);
-                ArpProtoType::NotSet
+                Self::NotSet
             }
         }
     }
@@ -96,7 +96,7 @@ impl ArpProtoType {
 
 impl Default for ArpProtoType {
     fn default() -> Self {
-        ArpProtoType::NotSet
+        Self::NotSet
     }
 }
 
@@ -122,18 +122,18 @@ pub enum ArpOpcode {
 
 impl Default for ArpOpcode {
     fn default() -> Self {
-        ArpOpcode::Reserved
+        Self::Reserved
     }
 }
 
 impl ArpOpcode {
-    fn from_bytes(b: &[u8]) -> ArpOpcode {
+    fn from_bytes(b: &[u8]) -> Self {
         let type_val = u16::to_be((b[1] as u16) << 8 | b[0] as u16);
-        match ArpOpcode::from_u16(type_val) {
+        match Self::from_u16(type_val) {
             Some(val) => val,
             None => {
                 error!("invalid/unhandled opcode: {:02X}", type_val);
-                ArpOpcode::Reserved
+                Self::Reserved
             }
         }
     }
@@ -154,8 +154,8 @@ pub struct ArpPacket {
 }
 
 impl ArpPacket {
-    pub fn new(raw_arp_hdr: &[u8]) -> ArpPacket {
-        let mut x: ArpPacket = Default::default();
+    pub fn new(raw_arp_hdr: &[u8]) -> Self {
+        let mut x: Self = Default::default();
         x.hw_type = ArpHardwareType::from_bytes(&raw_arp_hdr[0..]);
         x.proto_type = ArpProtoType::from_bytes(&raw_arp_hdr[2..]);
         x.hw_addr_len = raw_arp_hdr[4];
