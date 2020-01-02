@@ -117,9 +117,7 @@ pub enum AddressFamily {
 }
 
 pub fn check_addr_family(val1: &AddressFamily, val2: &AddressFamily) -> bool {
-    let ival2 = *val2 as u32;
-    let ival1 = *val1 as u32;
-    return ival1 == ival2;
+    *val1 as u32 == *val2 as u32
 }
 
 type time_t = c_long;
@@ -375,9 +373,8 @@ impl PcapIfcInfo {
 // https://doc.rust-lang.org/nomicon/working-with-unsafe.html
 
 pub unsafe fn extract_addr_netmask(addresses: *mut pcap_addr) -> PcapAddr {
-    let netmask: PcapAddr;
     if !(*addresses).netmask.is_null() {
-        netmask = PcapAddr {
+        PcapAddr {
             family: num::FromPrimitive::from_u16((*(*addresses).netmask).sa_family).unwrap(),
             data: [
                 (*(*addresses).netmask).sa_data[0] as u8,
@@ -413,20 +410,18 @@ pub unsafe fn extract_addr_netmask(addresses: *mut pcap_addr) -> PcapAddr {
                 0,
                 0,
             ],
-        };
+        }
     } else {
-        netmask = PcapAddr {
+        PcapAddr {
             family: AddressFamily::AF_UNSPEC,
             data: [0; 32],
-        };
+        }
     }
-    return netmask;
 }
 
 pub unsafe fn extract_addr_addr(addresses: *mut pcap_addr) -> PcapAddr {
-    let addr: PcapAddr;
     if !(*addresses).addr.is_null() {
-        addr = PcapAddr {
+        PcapAddr {
             family: num::FromPrimitive::from_u16((*(*addresses).addr).sa_family).unwrap(),
             data: [
                 (*(*addresses).addr).sa_data[0] as u8,
@@ -462,20 +457,18 @@ pub unsafe fn extract_addr_addr(addresses: *mut pcap_addr) -> PcapAddr {
                 0,
                 0,
             ],
-        };
+        }
     } else {
-        addr = PcapAddr {
+        PcapAddr {
             family: AddressFamily::AF_UNSPEC,
             data: [0; 32],
-        };
+        }
     }
-    return addr;
 }
 
 pub unsafe fn extract_addr_bcast(addresses: *mut pcap_addr) -> PcapAddr {
-    let bcast: PcapAddr;
     if !(*addresses).broadaddr.is_null() {
-        bcast = PcapAddr {
+        PcapAddr {
             family: num::FromPrimitive::from_u16((*(*addresses).broadaddr).sa_family).unwrap(),
             data: [
                 (*(*addresses).broadaddr).sa_data[0] as u8,
@@ -511,20 +504,18 @@ pub unsafe fn extract_addr_bcast(addresses: *mut pcap_addr) -> PcapAddr {
                 0,
                 0,
             ],
-        };
+        }
     } else {
-        bcast = PcapAddr {
+        PcapAddr {
             family: AddressFamily::AF_UNSPEC,
             data: [0; 32],
-        };
+        }
     }
-    return bcast;
 }
 
 pub unsafe fn extract_addr_dest(addresses: *mut pcap_addr) -> PcapAddr {
-    let dest: PcapAddr;
     if !(*addresses).dstaddr.is_null() {
-        dest = PcapAddr {
+        PcapAddr {
             family: num::FromPrimitive::from_u16((*(*addresses).dstaddr).sa_family).unwrap(),
             data: [
                 (*(*addresses).dstaddr).sa_data[0] as u8,
@@ -560,15 +551,13 @@ pub unsafe fn extract_addr_dest(addresses: *mut pcap_addr) -> PcapAddr {
                 0,
                 0,
             ],
-        };
+        }
     } else {
-        dest = PcapAddr {
+        PcapAddr {
             family: AddressFamily::AF_UNSPEC,
             data: [0; 32],
-        };
+        }
     }
-
-    return dest;
 }
 
 pub fn extract_dev_name(curr_dev: *mut pcap_if_t) -> String {
@@ -582,8 +571,7 @@ pub fn extract_dev_name(curr_dev: *mut pcap_if_t) -> String {
     let dev_name_cstr: CString = unsafe { CString::from_raw((*curr_dev).name) };
     let dev_name_str_result = dev_name_cstr.into_string();
     assert_eq!(dev_name_str_result.is_ok(), true);
-    let dev_name = dev_name_str_result.unwrap();
-    return dev_name;
+    dev_name_str_result.unwrap()
 }
 
 pub fn extract_dev_desc(curr_dev: *mut pcap_if_t) -> String {
@@ -597,8 +585,7 @@ pub fn extract_dev_desc(curr_dev: *mut pcap_if_t) -> String {
     let dev_desc_cstr = unsafe { CString::from_raw((*curr_dev).description) };
     let dev_desc_str_result = dev_desc_cstr.into_string();
     assert_eq!(dev_desc_str_result.is_ok(), true);
-    let dev_desc = dev_desc_str_result.unwrap();
-    return dev_desc;
+    dev_desc_str_result.unwrap()
 }
 
 pub fn get_net_ifcs() -> Vec<PcapIfcInfo> {
@@ -648,16 +635,16 @@ pub fn get_net_ifcs() -> Vec<PcapIfcInfo> {
           // pcap_freealldevs(dev_list);
     }; // end of unsafe block
     debug!("found {} devices", out_ifc_info.len());
-    return out_ifc_info;
+    out_ifc_info
 }
 
 pub fn pcap_addr_to_ipv4_addr(in_addr: &PcapAddr) -> Ipv4Addr {
-    return Ipv4Addr::new(
+    Ipv4Addr::new(
         (*in_addr).data[2],
         (*in_addr).data[3],
         (*in_addr).data[4],
         (*in_addr).data[5],
-    );
+    )
 }
 
 pub fn get_pcap_ifc_by_ip4addr(config: &Config) -> result::Result<PcapIfcInfo, &'static str> {
@@ -698,8 +685,8 @@ pub fn get_pcap_ifc_by_ip4addr(config: &Config) -> result::Result<PcapIfcInfo, &
     }
 
     match found {
-        false => return Err("target device not found"),
-        true => return Ok(tgt_pcap_info),
+        false => Err("target device not found"),
+        true => Ok(tgt_pcap_info),
     }
 }
 
@@ -709,8 +696,8 @@ pub fn get_cap_handle(ifc_info: &PcapIfcInfo) -> Result<*mut pcap_t, &'static st
     let mut cap_handle: *mut pcap_t = ptr::null_mut();
     unsafe { cap_handle = pcap_create(ifc_info.name.as_ptr(), err_buf.as_mut_ptr()) };
     match cap_handle.is_null() {
-        true => return Err("failed to get pcap device"),
-        false => return Ok(cap_handle),
+        true => Err("failed to get pcap device"),
+        false => Ok(cap_handle),
     }
 }
 
@@ -746,35 +733,35 @@ pub fn activate_pcap_handle(cap_handle: *mut pcap_t) -> bool {
             }
             PCAP_WARNING => {
                 warn!("unspecified warning occurred");
-                return false;
+                false
             } // todo: get error msg
             PCAP_ERROR_ACTIVATED => {
                 error!("cap handle already activated");
-                return false;
+                false
             }
             PCAP_ERROR_NO_SUCH_DEVICE => {
                 error!("cap device does not exist");
-                return false;
+                false
             }
             PCAP_ERROR_PERM_DENIED => {
                 error!("permission denied");
-                return false;
+                false
             }
             PCAP_ERROR_PROMISC_PERM_DENIED => {
                 error!("promiscuous permission denied");
-                return false;
+                false
             }
             PCAP_ERROR_IFACE_NOT_UP => {
                 error!("interface offline");
-                return false;
+                false
             }
             PCAP_ERROR => {
                 error!("unspecified error occurred");
-                return false;
+                false
             }
             _ => {
                 error!("illegal error/warning code");
-                return false;
+                false
             }
         }
     }
@@ -824,9 +811,9 @@ pub fn get_packet(cap_handle: *mut pcap_t) -> Result<PacketData, &'static str> {
     }
     // todo: handle the error message
     match is_err {
-        true => return Err("failed to get packet"),
-        false => return Ok(out_data),
-    };
+        true => Err("failed to get packet"),
+        false => Ok(out_data),
+    }
 }
 
 // END OF FILE

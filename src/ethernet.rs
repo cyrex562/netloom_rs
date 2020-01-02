@@ -80,14 +80,13 @@ impl EtherType {
 
     pub fn from_bytes(b: &[u8]) -> EtherType {
         let type_val = u16::to_be((b[1] as u16) << 8 | b[0] as u16);
-        let val = match EtherType::from_u16(type_val) {
+        match EtherType::from_u16(type_val) {
             Some(val) => val,
             None => {
                 error!("invalid/unhandled Ether Type: {:02X}", type_val);
                 EtherType::NotSet
             }
-        };
-        return val;
+        }
     }
 }
 
@@ -105,7 +104,7 @@ impl EthernetFrame {
         x.dest_addr.copy_from_slice(&raw_packet_data[0..6]);
         x.src_addr.copy_from_slice(&raw_packet_data[6..12]);
         x.ether_type = EtherType::from_bytes(&raw_packet_data[12..14]);
-        return x;
+        x
     }
 }
 

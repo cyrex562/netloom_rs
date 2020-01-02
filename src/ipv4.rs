@@ -48,22 +48,22 @@ impl Default for Ipv4TosPrecedence {
 impl Ipv4TosPrecedence {
     fn from_byte(b: u8) -> Ipv4TosPrecedence {
         if b & 0b1110_0000 == 1 {
-            return Ipv4TosPrecedence::NetCtrl;
+            Ipv4TosPrecedence::NetCtrl
         } else if b & 0b1110_0000 == 1 {
-            return Ipv4TosPrecedence::InternetworkControl;
+            Ipv4TosPrecedence::InternetworkControl
         } else if b & 0b1010_0000 == 1 {
-            return Ipv4TosPrecedence::CriticEcp;
+            Ipv4TosPrecedence::CriticEcp
         } else if b & 0b1000_0000 == 1 {
-            return Ipv4TosPrecedence::FlashOverride;
+            Ipv4TosPrecedence::FlashOverride
         } else if b & 0b0110_0000 == 1 {
-            return Ipv4TosPrecedence::Flash;
+            Ipv4TosPrecedence::Flash
         } else if b & 0b0100_0000 == 1 {
-            return Ipv4TosPrecedence::Immediate;
+            Ipv4TosPrecedence::Immediate
         } else if b & 0b0010_0000 == 1 {
-            return Ipv4TosPrecedence::Priority;
+            Ipv4TosPrecedence::Priority
         } else {
-            return Ipv4TosPrecedence::Routine;
-        };
+            Ipv4TosPrecedence::Routine
+        }
     }
 }
 
@@ -82,10 +82,10 @@ impl Default for Ipv4TosDelay {
 impl Ipv4TosDelay {
     fn from_byte(b: u8) -> Ipv4TosDelay {
         if b & 0b0001_0000 == 1 {
-            return Ipv4TosDelay::LowDelay;
+            Ipv4TosDelay::LowDelay
         } else {
-            return Ipv4TosDelay::NormalDelay;
-        };
+            Ipv4TosDelay::NormalDelay
+        }
     }
 }
 
@@ -104,9 +104,9 @@ impl Default for Ipv4TosThroughput {
 impl Ipv4TosThroughput {
     fn from_byte(b: u8) -> Ipv4TosThroughput {
         if b & 0b0_0000_1000 == 1 {
-            return Ipv4TosThroughput::HighThroughput;
+            Ipv4TosThroughput::HighThroughput
         } else {
-            return Ipv4TosThroughput::NormalThroughput;
+            Ipv4TosThroughput::NormalThroughput
         }
     }
 }
@@ -126,10 +126,10 @@ impl Default for Ipv4TosReliability {
 impl Ipv4TosReliability {
     fn from_byte(b: u8) -> Ipv4TosReliability {
         if b & 0b0_0000_0100 == 1 {
-            return Ipv4TosReliability::HighReliability;
+            Ipv4TosReliability::HighReliability
         } else {
-            return Ipv4TosReliability::NormalReliability;
-        };
+            Ipv4TosReliability::NormalReliability
+        }
     }
 }
 
@@ -143,12 +143,12 @@ pub struct Ipv4Tos {
 
 impl Ipv4Tos {
     fn new(b: u8) -> Ipv4Tos {
-        let mut x: Ipv4Tos = Default::default();
-        x.precedence = Ipv4TosPrecedence::from_byte(b);
-        x.delay = Ipv4TosDelay::from_byte(b);
-        x.throughput = Ipv4TosThroughput::from_byte(b);
-        x.reliability = Ipv4TosReliability::from_byte(b);
-        return x;
+        Ipv4Tos {
+            precedence: Ipv4TosPrecedence::from_byte(b),
+            delay: Ipv4TosDelay::from_byte(b),
+            throughput: Ipv4TosThroughput::from_byte(b),
+            reliability: Ipv4TosReliability::from_byte(b),
+        }
     }
 }
 
@@ -191,59 +191,52 @@ impl Ipv4Flags {
             out_flags[1] = Ipv4Flags::LastFragment
         }
 
-        return out_flags;
+        out_flags
     }
 }
 
 impl Ipv4Header {
     pub fn new(raw_ip4_hdr: &[u8]) -> Ipv4Header {
-        let mut x: Ipv4Header = Default::default();
-        x.version_ihl = raw_ip4_hdr[0];
-        x.tos = raw_ip4_hdr[1];
-        x.tot_len = bytes_to_u16(&raw_ip4_hdr[2..]);
-        x.ip_id = bytes_to_u16(&raw_ip4_hdr[4..]);
-        x.flags_fragoff = bytes_to_u16(&raw_ip4_hdr[6..]);
-        x.ttl = raw_ip4_hdr[8];
-        x.proto = Ipv4Proto::from_u8(raw_ip4_hdr[9]).unwrap();
-        x.chksum = bytes_to_u16(&raw_ip4_hdr[10..]);
-        x.src_addr = bytes_to_u32(&raw_ip4_hdr[12..]);
-        x.dst_addr = bytes_to_u32(&raw_ip4_hdr[16..]);
-        return x;
+        Ipv4Header {
+            version_ihl: raw_ip4_hdr[0],
+            tos: raw_ip4_hdr[1],
+            tot_len: bytes_to_u16(&raw_ip4_hdr[2..]),
+            ip_id: bytes_to_u16(&raw_ip4_hdr[4..]),
+            flags_fragoff: bytes_to_u16(&raw_ip4_hdr[6..]),
+            ttl: raw_ip4_hdr[8],
+            proto: Ipv4Proto::from_u8(raw_ip4_hdr[9]).unwrap(),
+            chksum: bytes_to_u16(&raw_ip4_hdr[10..]),
+            src_addr: bytes_to_u32(&raw_ip4_hdr[12..]),
+            dst_addr: bytes_to_u32(&raw_ip4_hdr[16..])
+        }
     }
 
     pub fn version(self) -> u8 {
-        let x = (self.version_ihl & 0b1111_0000) >> 4;
-        return x;
+        (self.version_ihl & 0b1111_0000) >> 4
     }
 
     pub fn ihl(self) -> u8 {
-        let x = self.version_ihl & 0b0000_1111;
-        return x;
+        self.version_ihl & 0b0000_1111
     }
 
     pub fn expand_tos(self) -> Ipv4Tos {
-        let x = Ipv4Tos::new(self.tos);
-        return x;
+        Ipv4Tos::new(self.tos)
     }
 
     pub fn flags(self) -> u16 {
-        let x: u16 = self.flags_fragoff >> 13;
-        return x;
+        self.flags_fragoff >> 13
     }
 
     pub fn frag_off(self) -> u16 {
-        let x = self.flags_fragoff & 0b0001_1111_1111_1111;
-        return x;
+        self.flags_fragoff & 0b0001_1111_1111_1111
     }
 
     pub fn src_addr_str(self) -> String {
-        let x = u32_ip4_to_str(self.src_addr);
-        return x;
+        u32_ip4_to_str(self.src_addr)
     }
 
     pub fn dst_addr_str(self) -> String {
-        let x = u32_ip4_to_str(self.dst_addr);
-        return x;
+        u32_ip4_to_str(self.dst_addr)
     }
 
     // todo: calculate checksum

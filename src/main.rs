@@ -219,7 +219,6 @@ fn main() {
     }
 
     debug!("finished!");
-    return;
 }
 
 // END OF FILE

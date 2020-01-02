@@ -22,10 +22,10 @@ pub struct TransSvcProtoInfo {
 
 impl TransSvcProtoInfo {
     pub fn new(port: u16, trans_proto: Vec<TransProto>) -> TransSvcProtoInfo {
-        let mut x: TransSvcProtoInfo = Default::default();
-        x.port = port;
-        trans_proto = Vec::new();
-        return x;
+        TransSvcProtoInfo {
+            port: port,
+            trans_proto: Vec::new()
+        }
     }
 }
 

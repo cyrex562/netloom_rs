@@ -163,13 +163,12 @@ impl Default for Ipv4Proto {
 
 impl Ipv4Proto {
     pub fn from_byte(b: u8) -> Ipv4Proto {
-        let val = match Ipv4Proto::from_u8(b) {
+        match Ipv4Proto::from_u8(b) {
             Some(val) => val,
             None => {
                 error!("invalid/unhandled IPv4 proto: {}", b);
                 Ipv4Proto::Reserved
             }
-        };
-        return val;
+        }
     }
 }

@@ -51,9 +51,9 @@ pub struct TcpOptEndOfList {
 
 impl TcpOptEndOfList {
     pub fn new() -> TcpOptEndOfList {
-        let mut x: TcpOptEndOfList = Default::default();
-        x.kind = TcpOptKind::EndOfList;
-        return x;
+        TcpOptEndOfList {
+            kind: TcpOptKind::EndOfList
+        }
     }
 }
 
@@ -66,9 +66,9 @@ pub struct TcpOptNop {
 
 impl TcpOptNop {
     pub fn new() -> TcpOptNop {
-        let mut x: TcpOptNop = Default::default();
-        x.kind = TcpOptKind::Nop;
-        return x;
+        TcpOptNop {
+            kind: TcpOptKind::Nop
+        }
     }
 }
 
@@ -83,11 +83,11 @@ pub struct TcpOptMaxSegSz {
 
 impl TcpOptMaxSegSz {
     pub fn new() -> TcpOptMaxSegSz {
-        let mut x: TcpOptMaxSegSz = Default::default();
-        x.kind = TcpOptKind::MaxSegSz;
-        x.length = 4;
-        x.max_seg_sz = 0;
-        return x;
+        TcpOptMaxSegSz {
+            kind: TcpOptKind::MaxSegSz,
+            length: 4,
+            max_seg_sz: 0
+        }
     }
 }
 
@@ -102,11 +102,11 @@ pub struct TcpOptWinScale {
 
 impl TcpOptWinScale {
     pub fn new() -> TcpOptWinScale {
-        let mut x: TcpOptWinScale = Default::default();
-        x.kind = TcpOptKind::WinScale;
-        x.length = 3;
-        x.shift_cnt = 0;
-        return x;
+        TcpOptWinScale {
+            kind: TcpOptKind::WinScale,
+            length: 3,
+            shift_cnt: 0
+        }
     }
 }
 
@@ -120,10 +120,10 @@ pub struct TcpOptSackOk {
 
 impl TcpOptSackOk {
     pub fn new() -> TcpOptSackOk {
-        let mut x: TcpOptSackOk = Default::default();
-        x.kind = TcpOptKind::SackOk;
-        x.length = 2;
-        return x;
+        TcpOptSackOk {
+            kind: TcpOptKind::SackOk,
+            length: 2
+        }
     }
 }
 
@@ -138,11 +138,11 @@ pub struct TcpOptSack {
 
 impl TcpOptSack {
     pub fn new() -> TcpOptSack {
-        let mut x: TcpOptSack = Default::default();
-        x.kind = TcpOptKind::Sack;
-        x.length = 0;
-        x.blocks = [0, 0, 0, 0];
-        return x;
+        TcpOptSack {
+            kind: TcpOptKind::Sack,
+            length: 0,
+            blocks: [0, 0, 0, 0]
+        }
     }
 }
 
@@ -158,12 +158,12 @@ pub struct TcpOptTimestamp {
 
 impl TcpOptTimestamp {
     pub fn new() -> TcpOptTimestamp {
-        let mut x: TcpOptTimestamp = Default::default();
-        x.kind = TcpOptKind::Timestamp;
-        x.length = 10;
-        x.ts_val = 0;
-        x.ts_echo_reply = 0;
-        return x;
+        TcpOptTimestamp {
+            kind: TcpOptKind::Timestamp,
+            length: 10,
+            ts_val: 0,
+            ts_echo_reply: 0
+        }
     }
 }
 
@@ -326,16 +326,16 @@ pub struct TcpHeader {
 
 impl TcpHeader {
     pub fn new(raw: &[u8]) -> TcpHeader {
-        let mut x: TcpHeader = Default::default();
-        x.src_port = bytes_to_u16(&raw[0..]);
-        x.dst_port = bytes_to_u16(&raw[2..]);
-        x.seq_num = bytes_to_u32(&raw[4..]);
-        x.ack_num = bytes_to_u32(&raw[8..]);
-        x.data_off_reserved_control_bits = bytes_to_u16(&raw[12..]);
-        x.window = bytes_to_u16(&raw[14..]);
-        x.checksum = bytes_to_u16(&raw[16..]);
-        x.urg_ptr = bytes_to_u16(&raw[18..]);
-        return x;
+        TcpHeader {
+            src_port: bytes_to_u16(&raw[0..]),
+            dst_port: bytes_to_u16(&raw[2..]),
+            seq_num: bytes_to_u32(&raw[4..]),
+            ack_num: bytes_to_u32(&raw[8..]),
+            data_off_reserved_control_bits: bytes_to_u16(&raw[12..]),
+            window: bytes_to_u16(&raw[14..]),
+            checksum: bytes_to_u16(&raw[16..]),
+            urg_ptr: bytes_to_u16(&raw[18..])
+        }
     }
 
     // decode data_off
@@ -345,7 +345,7 @@ impl TcpHeader {
             "raw: {:X}, data offset: {}",
             self.data_off_reserved_control_bits, x
         );
-        return x;
+        x
     }
 
     // decode control_bits
@@ -372,7 +372,7 @@ impl TcpHeader {
         if ctrl_field & 0x01 > 0 {
             out_bits.push(TcpControlBits::Fin);
         }
-        return out_bits;
+        out_bits
     }
 
     // decode options;
@@ -437,7 +437,7 @@ impl TcpHeader {
                 };
             }
         }
-        return options;
+        options
     }
 
     // string
