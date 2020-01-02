@@ -66,19 +66,19 @@ impl Ipv6Header {
 
     // get version
     pub fn version(self) -> u32 {
-        let x = (self.ver_class_flow & 0b111100000000000000000000000000) >> 28;
+        let x = (self.ver_class_flow & 0b11_1100_0000_0000_0000_0000_0000_0000) >> 28;
         return x;
     }
 
     // get class
     pub fn class(self) -> u32 {
-        let x = (self.ver_class_flow & 0b00001111111100000000000000000000) >> 20;
+        let x = (self.ver_class_flow & 0b0000_1111_1111_0000_0000_0000_0000_0000) >> 20;
         return x;
     }
 
     // get flow label
     pub fn flow_label(self) -> u32 {
-        let x = (self.ver_class_flow & 0b00000000000011111111111111111111);
+        let x = (self.ver_class_flow & 0b0000_0000_0000_1111_1111_1111_1111_1111);
         return x;
     }
 

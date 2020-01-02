@@ -47,19 +47,19 @@ impl Default for Ipv4TosPrecedence {
 
 impl Ipv4TosPrecedence {
     fn from_byte(b: u8) -> Ipv4TosPrecedence {
-        if b & 0b11100000 == 1 {
+        if b & 0b1110_0000 == 1 {
             return Ipv4TosPrecedence::NetCtrl;
-        } else if b & 0b11100000 == 1 {
+        } else if b & 0b1110_0000 == 1 {
             return Ipv4TosPrecedence::InternetworkControl;
-        } else if b & 0b10100000 == 1 {
+        } else if b & 0b1010_0000 == 1 {
             return Ipv4TosPrecedence::CriticEcp;
-        } else if b & 0b10000000 == 1 {
+        } else if b & 0b1000_0000 == 1 {
             return Ipv4TosPrecedence::FlashOverride;
-        } else if b & 0b01100000 == 1 {
+        } else if b & 0b0110_0000 == 1 {
             return Ipv4TosPrecedence::Flash;
-        } else if b & 0b01000000 == 1 {
+        } else if b & 0b0100_0000 == 1 {
             return Ipv4TosPrecedence::Immediate;
-        } else if b & 0b00100000 == 1 {
+        } else if b & 0b0010_0000 == 1 {
             return Ipv4TosPrecedence::Priority;
         } else {
             return Ipv4TosPrecedence::Routine;
@@ -81,7 +81,7 @@ impl Default for Ipv4TosDelay {
 
 impl Ipv4TosDelay {
     fn from_byte(b: u8) -> Ipv4TosDelay {
-        if b & 0b00010000 == 1 {
+        if b & 0b0001_0000 == 1 {
             return Ipv4TosDelay::LowDelay;
         } else {
             return Ipv4TosDelay::NormalDelay;
@@ -103,7 +103,7 @@ impl Default for Ipv4TosThroughput {
 
 impl Ipv4TosThroughput {
     fn from_byte(b: u8) -> Ipv4TosThroughput {
-        if b & 0b000001000 == 1 {
+        if b & 0b0_0000_1000 == 1 {
             return Ipv4TosThroughput::HighThroughput;
         } else {
             return Ipv4TosThroughput::NormalThroughput;
@@ -125,7 +125,7 @@ impl Default for Ipv4TosReliability {
 
 impl Ipv4TosReliability {
     fn from_byte(b: u8) -> Ipv4TosReliability {
-        if b & 0b000000100 == 1 {
+        if b & 0b0_0000_0100 == 1 {
             return Ipv4TosReliability::HighReliability;
         } else {
             return Ipv4TosReliability::NormalReliability;
@@ -181,13 +181,13 @@ impl Default for Ipv4Flags {
 impl Ipv4Flags {
     fn from_u16(w: u16) -> [Ipv4Flags; 2] {
         let mut out_flags: [Ipv4Flags; 2] = [Ipv4Flags::NotSet, Ipv4Flags::NotSet];
-        if w & 0b0100000000000000 == 0 {
+        if w & 0b0100_0000_0000_0000 == 0 {
             out_flags[0] = Ipv4Flags::MayFragment
-        } else if w & 0b0100000000000000 == 1 {
+        } else if w & 0b0100_0000_0000_0000 == 1 {
             out_flags[0] = Ipv4Flags::DontFragment
-        } else if w & 0b0010000000000000 == 0 {
+        } else if w & 0b0010_0000_0000_0000 == 0 {
             out_flags[1] = Ipv4Flags::LastFragment
-        } else if w & 0b0010000000000000 == 1 {
+        } else if w & 0b0010_0000_0000_0000 == 1 {
             out_flags[1] = Ipv4Flags::LastFragment
         }
 
@@ -212,12 +212,12 @@ impl Ipv4Header {
     }
 
     pub fn version(self) -> u8 {
-        let x = (self.version_ihl & 0b11110000) >> 4;
+        let x = (self.version_ihl & 0b1111_0000) >> 4;
         return x;
     }
 
     pub fn ihl(self) -> u8 {
-        let x = self.version_ihl & 0b00001111;
+        let x = self.version_ihl & 0b0000_1111;
         return x;
     }
 
@@ -232,7 +232,7 @@ impl Ipv4Header {
     }
 
     pub fn frag_off(self) -> u16 {
-        let x = self.flags_fragoff & 0b0001111111111111;
+        let x = self.flags_fragoff & 0b0001_1111_1111_1111;
         return x;
     }
 

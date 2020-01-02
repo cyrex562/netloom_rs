@@ -340,7 +340,7 @@ impl TcpHeader {
 
     // decode data_off
     pub fn data_off(self) -> u16 {
-        let x = (self.data_off_reserved_control_bits & 0b1111000000000000) >> 12;
+        let x = (self.data_off_reserved_control_bits & 0b1111_0000_0000_0000) >> 12;
         debug!(
             "raw: {:X}, data offset: {}",
             self.data_off_reserved_control_bits, x
