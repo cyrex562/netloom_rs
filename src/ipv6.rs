@@ -8,7 +8,7 @@ use crate::ip_proto::Ipv4Proto;
 use log::{debug, error};
 use num_derive::{FromPrimitive, ToPrimitive};
 use num_traits::{FromPrimitive, ToPrimitive};
-
+use std::fmt::{Display, Formatter};
 
 // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // |Version| Traffic Class |           Flow Label                  |
@@ -91,9 +91,10 @@ impl Ipv6Header {
     pub fn dst_addr_str(self) -> String {
         ipv6_to_str(&self.dst_addr)
     }
+}
 
-    // get header as str
-    pub fn to_string(self) -> String {
-        format!("Version: {}, Traffic Class: {}, Flow Label: {:X}, Payload Len: {}, Next Header: {:?}, Hop Limit: {}, Src Addr: {}, Dst Addr: {}", self.version(), self.class(), self.flow_label(), self.payload_len, self.next_hdr, self.hop_limit, self.src_addr_str(), self.dst_addr_str())
+impl Display for Ipv6Header {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Version: {}, Traffic Class: {}, Flow Label: {:X}, Payload Len: {}, Next Header: {:?}, Hop Limit: {}, Src Addr: {}, Dst Addr: {}", self.version(), self.class(), self.flow_label(), self.payload_len, self.next_hdr, self.hop_limit, self.src_addr_str(), self.dst_addr_str())
     }
 }

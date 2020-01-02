@@ -2,6 +2,7 @@ use crate::util::mac_to_str;
 use log::error;
 use num_derive::{FromPrimitive, ToPrimitive};
 use num_traits::{FromPrimitive, ToPrimitive};
+use std::fmt::{Display, Formatter};
 
 #[derive(FromPrimitive, Copy, Clone, PartialEq, Debug)]
 #[repr(u16)]
@@ -106,14 +107,17 @@ impl EthernetFrame {
         x.ether_type = EtherType::from_bytes(&raw_packet_data[12..14]);
         return x;
     }
+}
 
-    pub fn to_string(self) -> String {
-        return format!(
+impl Display for EthernetFrame {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
             "src: {}, dst: {}, type: {:?}",
             mac_to_str(&self.src_addr),
             mac_to_str(&self.dest_addr),
             self.ether_type
-        );
+        )
     }
 }
 

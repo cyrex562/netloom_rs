@@ -16,6 +16,7 @@
 /// +---------------- ...
 ///
 use crate::util::bytes_to_u16;
+use std::fmt::{Display, Formatter};
 
 #[derive(Copy, Clone, Default)]
 #[repr(C)]
@@ -35,11 +36,11 @@ impl UdpHeader {
         x.chksum = bytes_to_u16(&raw_udp_hdr[6..]);
         return x;
     }
+}
 
-    pub fn to_string(self) -> String {
-        format!(
-            "Src Port: {}, Dst Port: {}, Len: {}, Checksum: {:X}",
-            self.src_port, self.dst_port, self.len, self.chksum
-        )
+impl Display for UdpHeader {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Src Port: {}, Dst Port: {}, Len: {}, Checksum: {:X}",
+            self.src_port, self.dst_port, self.len, self.chksum)
     }
 }

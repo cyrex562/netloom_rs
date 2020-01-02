@@ -9,7 +9,7 @@ use crate::util::{bytes_to_u16, bytes_to_u32, ipv4_to_str, mac_to_str, u32_ip4_t
 use log::{debug, error};
 use num_derive::{FromPrimitive, ToPrimitive};
 use num_traits::{FromPrimitive, ToPrimitive};
-
+use std::fmt::{Display, Formatter};
 
 // https://tools.ietf.org/html/rfc791#section-3.1
 #[derive(Copy, Clone, Default)]
@@ -150,9 +150,12 @@ impl Ipv4Tos {
         x.reliability = Ipv4TosReliability::from_byte(b);
         return x;
     }
+}
 
-    fn to_string(self) -> String {
-        format!(
+impl Display for Ipv4Tos {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
             "precedence: {:?}, delay: {:?}, throughput: {:?}, reliability: {:?}",
             self.precedence, self.delay, self.throughput, self.reliability
         )
@@ -243,9 +246,11 @@ impl Ipv4Header {
         return x;
     }
 
-    pub fn to_string(self) -> String {
-        format!("version: {}, IHL: {}, TOS: {:?}, Tot Len: {}, IP ID: {:02x}, Flags: {:?}, Frag Off: {}, TTL: {}, Proto: {:?}, Checksum: {:02x}, Src Addr: {}, Dst Addr: {}", self.version(), self.ihl(), self.expand_tos(), self.tot_len, self.ip_id, self.flags(), self.frag_off(), self.ttl, self.proto, self.chksum, self.src_addr_str(), self.dst_addr_str())
-    }
-
     // todo: calculate checksum
+}
+
+impl Display for Ipv4Header {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "version: {}, IHL: {}, TOS: {:?}, Tot Len: {}, IP ID: {:02x}, Flags: {:?}, Frag Off: {}, TTL: {}, Proto: {:?}, Checksum: {:02x}, Src Addr: {}, Dst Addr: {}", self.version(), self.ihl(), self.expand_tos(), self.tot_len, self.ip_id, self.flags(), self.frag_off(), self.ttl, self.proto, self.chksum, self.src_addr_str(), self.dst_addr_str())
+    }
 }

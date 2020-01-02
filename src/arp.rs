@@ -5,6 +5,7 @@ use crate::util::{ipv4_to_str, mac_to_str};
 use log::{debug, error};
 use num_derive::{FromPrimitive, ToPrimitive};
 use num_traits::{FromPrimitive, ToPrimitive};
+use std::fmt::{Display, Formatter};
 
 // ref: http://www.networksorcery.com/enp/protocol/arp.htm
 
@@ -169,8 +170,10 @@ impl ArpPacket {
         x.tgt_proto_addr.copy_from_slice(&raw_arp_hdr[24..28]);
         return x;
     }
+}
 
-    pub fn to_string(self) -> String {
-        format!("hw type: {:?}, proto type: {:?}, hw addr len: {}, proto addr len : {}, opcode: {:?}, snd hw addr: {:?}, snd proto addr: {:?}, tgt hw addr: {:?}, tgt proto addr: {:?}", self.hw_type, self.proto_type, self.hw_addr_len, self.proto_addr_len, self.opcode, mac_to_str(&self.snd_hw_addr), ipv4_to_str(&self.snd_proto_addr), mac_to_str(&self.tgt_hw_addr), ipv4_to_str(&self.tgt_proto_addr))
+impl Display for ArpPacket {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "hw type: {:?}, proto type: {:?}, hw addr len: {}, proto addr len : {}, opcode: {:?}, snd hw addr: {:?}, snd proto addr: {:?}, tgt hw addr: {:?}, tgt proto addr: {:?}", self.hw_type, self.proto_type, self.hw_addr_len, self.proto_addr_len, self.opcode, mac_to_str(&self.snd_hw_addr), ipv4_to_str(&self.snd_proto_addr), mac_to_str(&self.tgt_hw_addr), ipv4_to_str(&self.tgt_proto_addr))
     }
 }
