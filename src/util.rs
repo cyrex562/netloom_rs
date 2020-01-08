@@ -31,10 +31,10 @@ pub fn bytes_to_u32(data: &[u8]) -> u32 {
 pub fn u32_ip4_to_str(d: u32) -> String {
     format!(
         "{}.{}.{}.{}",
-        (d & 0xff000000) >> 24,
-        (d & 0x00ff0000) >> 16,
-        (d & 0x0000ff00) >> 8,
-        d & 0x000000ff
+        (d & 0xff00_0000) >> 24,
+        (d & 0x00ff_0000) >> 16,
+        (d & 0x0000_ff00) >> 8,
+        d & 0x0000_00ff
     )
 }
 

@@ -2,7 +2,7 @@
 #![allow(non_camel_case_types)]
 #![allow(dead_code)]
 
-use libc::{c_char, c_int, c_long, c_uchar, c_uint, c_ushort, sockaddr, FILE};
+use libc::{c_char, c_int, c_long, c_uchar, c_uint, c_ushort, sockaddr};
 use log::{debug, error, warn};
 use num_derive::FromPrimitive;
 use std::ffi::CString;
@@ -15,23 +15,23 @@ use crate::config::Config;
 use crate::packet_data::PacketData;
 
 // #define PCAP_IF_LOOPBACK				0x00000001	/* interface is loopback */
-const PCAP_IF_LOOPBACK: u32 = 0x00000001;
+const PCAP_IF_LOOPBACK: u32 = 0x0000_0001;
 // #define PCAP_IF_UP					0x00000002	/* interface is up */
-const PCAP_IF_UP: u32 = 0x00000002;
+const PCAP_IF_UP: u32 = 0x0000_0002;
 // #define PCAP_IF_RUNNING					0x00000004	/* interface is running */
-const PCAP_IF_RUNNING: u32 = 0x00000004;
+const PCAP_IF_RUNNING: u32 = 0x0000_0004;
 // #define PCAP_IF_WIRELESS				0x00000008	/* interface is wireless (*NOT* necessarily Wi-Fi!) */
-const PCAP_IF_WIRELESS: u32 = 0x00000008;
+const PCAP_IF_WIRELESS: u32 = 0x0000_0008;
 // #define PCAP_IF_CONNECTION_STATUS			0x00000030	/* connection status: */
-const PCAP_IF_CONNECTION_STATUS: u32 = 0x00000030;
+const PCAP_IF_CONNECTION_STATUS: u32 = 0x0000_0030;
 // #define PCAP_IF_CONNECTION_STATUS_UNKNOWN		0x00000000	/* unknown */
-const PCAP_IF_CONNECTION_STATUS_UNKNOWN: u32 = 0x00000000;
+const PCAP_IF_CONNECTION_STATUS_UNKNOWN: u32 = 0x0000_0000;
 // #define PCAP_IF_CONNECTION_STATUS_CONNECTED		0x00000010	/* connected */
-const PCAP_IF_CONNECTION_STATUS_CONNECTED: u32 = 0x00000010;
+const PCAP_IF_CONNECTION_STATUS_CONNECTED: u32 = 0x0000_0010;
 // #define PCAP_IF_CONNECTION_STATUS_DISCONNECTED		0x00000020	/* disconnected */
-const PCAP_IF_CONNECTION_STATUS_DISCONNECTED: u32 = 0x00000020;
+const PCAP_IF_CONNECTION_STATUS_DISCONNECTED: u32 = 0x0000_0020;
 // #define PCAP_IF_CONNECTION_STATUS_NOT_APPLICABLE	0x00000030	/* not applicable */
-const PCAP_IF_CONNECTION_STATUS_NOT_APPLICABLE: u32 = 0x00000030;
+const PCAP_IF_CONNECTION_STATUS_NOT_APPLICABLE: u32 = 0x0000_0030;
 
 // #define PCAP_ERROR			-1	/* generic error code */
 const PCAP_ERROR: i32 = -1;
@@ -119,7 +119,7 @@ pub enum AddressFamily {
 pub fn check_addr_family(val1: &AddressFamily, val2: &AddressFamily) -> bool {
     let ival2 = *val2 as u32;
     let ival1 = *val1 as u32;
-    return ival1 == ival2;
+    ival1 == ival2
 }
 
 type time_t = c_long;
@@ -420,7 +420,7 @@ pub unsafe fn extract_addr_netmask(addresses: *mut pcap_addr) -> PcapAddr {
             data: [0; 32],
         };
     }
-    return netmask;
+    netmask
 }
 
 pub unsafe fn extract_addr_addr(addresses: *mut pcap_addr) -> PcapAddr {
@@ -469,7 +469,7 @@ pub unsafe fn extract_addr_addr(addresses: *mut pcap_addr) -> PcapAddr {
             data: [0; 32],
         };
     }
-    return addr;
+    addr
 }
 
 pub unsafe fn extract_addr_bcast(addresses: *mut pcap_addr) -> PcapAddr {
@@ -518,7 +518,7 @@ pub unsafe fn extract_addr_bcast(addresses: *mut pcap_addr) -> PcapAddr {
             data: [0; 32],
         };
     }
-    return bcast;
+    bcast
 }
 
 pub unsafe fn extract_addr_dest(addresses: *mut pcap_addr) -> PcapAddr {
@@ -568,7 +568,7 @@ pub unsafe fn extract_addr_dest(addresses: *mut pcap_addr) -> PcapAddr {
         };
     }
 
-    return dest;
+    dest
 }
 
 pub fn extract_dev_name(curr_dev: *mut pcap_if_t) -> String {
@@ -582,8 +582,7 @@ pub fn extract_dev_name(curr_dev: *mut pcap_if_t) -> String {
     let dev_name_cstr: CString = unsafe { CString::from_raw((*curr_dev).name) };
     let dev_name_str_result = dev_name_cstr.into_string();
     assert_eq!(dev_name_str_result.is_ok(), true);
-    let dev_name = dev_name_str_result.unwrap();
-    return dev_name;
+    dev_name_str_result.unwrap()
 }
 
 pub fn extract_dev_desc(curr_dev: *mut pcap_if_t) -> String {
@@ -597,8 +596,7 @@ pub fn extract_dev_desc(curr_dev: *mut pcap_if_t) -> String {
     let dev_desc_cstr = unsafe { CString::from_raw((*curr_dev).description) };
     let dev_desc_str_result = dev_desc_cstr.into_string();
     assert_eq!(dev_desc_str_result.is_ok(), true);
-    let dev_desc = dev_desc_str_result.unwrap();
-    return dev_desc;
+    dev_desc_str_result.unwrap()
 }
 
 pub fn get_net_ifcs() -> Vec<PcapIfcInfo> {
@@ -631,8 +629,8 @@ pub fn get_net_ifcs() -> Vec<PcapIfcInfo> {
                 let bcast: PcapAddr = extract_addr_bcast(addresses);
                 let dest: PcapAddr = extract_addr_dest(addresses);
                 let addr_info = PcapIfcAddrInfo {
-                    netmask: netmask,
-                    addr: addr,
+                    netmask,
+                    addr,
                     bcast_addr: bcast,
                     dest_addr: dest,
                 };
@@ -648,16 +646,16 @@ pub fn get_net_ifcs() -> Vec<PcapIfcInfo> {
           // pcap_freealldevs(dev_list);
     }; // end of unsafe block
     debug!("found {} devices", out_ifc_info.len());
-    return out_ifc_info;
+    out_ifc_info
 }
 
 pub fn pcap_addr_to_ipv4_addr(in_addr: &PcapAddr) -> Ipv4Addr {
-    return Ipv4Addr::new(
+    Ipv4Addr::new(
         (*in_addr).data[2],
         (*in_addr).data[3],
         (*in_addr).data[4],
         (*in_addr).data[5],
-    );
+    )
 }
 
 pub fn get_pcap_ifc_by_ip4addr(config: &Config) -> result::Result<PcapIfcInfo, &'static str> {
@@ -698,8 +696,8 @@ pub fn get_pcap_ifc_by_ip4addr(config: &Config) -> result::Result<PcapIfcInfo, &
     }
 
     match found {
-        false => return Err("target device not found"),
-        true => return Ok(tgt_pcap_info),
+        false => Err("target device not found"),
+        true => Ok(tgt_pcap_info),
     }
 }
 
@@ -709,8 +707,8 @@ pub fn get_cap_handle(ifc_info: &PcapIfcInfo) -> Result<*mut pcap_t, &'static st
     let mut cap_handle: *mut pcap_t = ptr::null_mut();
     unsafe { cap_handle = pcap_create(ifc_info.name.as_ptr(), err_buf.as_mut_ptr()) };
     match cap_handle.is_null() {
-        true => return Err("failed to get pcap device"),
-        false => return Ok(cap_handle),
+        true => Err("failed to get pcap device"),
+        false => Ok(cap_handle),
     }
 }
 
@@ -746,35 +744,35 @@ pub fn activate_pcap_handle(cap_handle: *mut pcap_t) -> bool {
             }
             PCAP_WARNING => {
                 warn!("unspecified warning occurred");
-                return false;
+                false
             } // todo: get error msg
             PCAP_ERROR_ACTIVATED => {
                 error!("cap handle already activated");
-                return false;
+                false
             }
             PCAP_ERROR_NO_SUCH_DEVICE => {
                 error!("cap device does not exist");
-                return false;
+                false
             }
             PCAP_ERROR_PERM_DENIED => {
                 error!("permission denied");
-                return false;
+                false
             }
             PCAP_ERROR_PROMISC_PERM_DENIED => {
                 error!("promiscuous permission denied");
-                return false;
+                false
             }
             PCAP_ERROR_IFACE_NOT_UP => {
                 error!("interface offline");
-                return false;
+                false
             }
             PCAP_ERROR => {
                 error!("unspecified error occurred");
-                return false;
+                false
             }
             _ => {
                 error!("illegal error/warning code");
-                return false;
+                false
             }
         }
     }
@@ -824,8 +822,8 @@ pub fn get_packet(cap_handle: *mut pcap_t) -> Result<PacketData, &'static str> {
     }
     // todo: handle the error message
     match is_err {
-        true => return Err("failed to get packet"),
-        false => return Ok(out_data),
+        true => Err("failed to get packet"),
+        false => Ok(out_data),
     };
 }
 

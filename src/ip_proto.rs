@@ -1,7 +1,7 @@
-use crate::util::{bytes_to_u16, bytes_to_u32, ipv4_to_str, mac_to_str, u32_ip4_to_str};
-use log::{debug, error};
-use num_derive::{FromPrimitive, ToPrimitive};
-use num_traits::{FromPrimitive, ToPrimitive};
+
+use log::{error};
+use num_derive::{FromPrimitive};
+use num_traits::{FromPrimitive};
 
 #[derive(Copy, Clone, PartialEq, FromPrimitive, Debug)]
 #[repr(u8)]
@@ -163,13 +163,12 @@ impl Default for Ipv4Proto {
 
 impl Ipv4Proto {
     pub fn from_byte(b: u8) -> Ipv4Proto {
-        let val = match Ipv4Proto::from_u8(b) {
+        match Ipv4Proto::from_u8(b) {
             Some(val) => val,
             None => {
                 error!("invalid/unhandled IPv4 proto: {}", b);
                 Ipv4Proto::Reserved
             }
-        };
-        return val;
+        }
     }
 }

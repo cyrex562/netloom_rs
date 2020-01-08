@@ -1,7 +1,13 @@
+///
+/// ## ethernet.rs
+/// 
+/// Data structures and functions for handling the Ethernet protocol
+/// 
+
 use crate::util::mac_to_str;
 use log::error;
-use num_derive::{FromPrimitive, ToPrimitive};
-use num_traits::{FromPrimitive, ToPrimitive};
+use num_derive::{FromPrimitive};
+use num_traits::{FromPrimitive};
 
 #[derive(FromPrimitive, Copy, Clone, PartialEq, Debug)]
 #[repr(u16)]
@@ -79,14 +85,13 @@ impl EtherType {
 
     pub fn from_bytes(b: &[u8]) -> EtherType {
         let type_val = u16::to_be((b[1] as u16) << 8 | b[0] as u16);
-        let val = match EtherType::from_u16(type_val) {
+        match EtherType::from_u16(type_val) {
             Some(val) => val,
             None => {
                 error!("invalid/unhandled Ether Type: {:02X}", type_val);
                 EtherType::NotSet
             }
-        };
-        return val;
+        }
     }
 }
 
@@ -104,7 +109,7 @@ impl EthernetFrame {
         x.dest_addr.copy_from_slice(&raw_packet_data[0..6]);
         x.src_addr.copy_from_slice(&raw_packet_data[6..12]);
         x.ether_type = EtherType::from_bytes(&raw_packet_data[12..14]);
-        return x;
+        x
     }
 
     pub fn to_string(self) -> String {
@@ -129,3 +134,5 @@ pub struct EtherSnapPacket {
     org_code: [u8; 3],   // org code, which org assigned ether type field,
     ether_type: [u8; 2], // which upper layer proto will use the ether frame
 }
+
+// end of file

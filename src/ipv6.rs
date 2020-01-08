@@ -5,9 +5,9 @@
 /// ref: https://tools.ietf.org/html/rfc2460
 use crate::util::{bytes_to_u16, bytes_to_u32, ipv6_to_str};
 use crate::ip_proto::Ipv4Proto;
-use log::{debug, error};
-use num_derive::{FromPrimitive, ToPrimitive};
-use num_traits::{FromPrimitive, ToPrimitive};
+
+
+
 
 
 // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -61,25 +61,22 @@ impl Ipv6Header {
         x.hop_limit = raw[7];
         x.src_addr.copy_from_slice(&raw[8..24]);
         x.dst_addr.copy_from_slice(&raw[24..40]);
-        return x;
+        x
     }
 
     // get version
     pub fn version(self) -> u32 {
-        let x = (self.ver_class_flow & 0b111100000000000000000000000000) >> 28;
-        return x;
+        (self.ver_class_flow & 0b11_1100_0000_0000_0000_0000_0000_0000) >> 28
     }
 
     // get class
     pub fn class(self) -> u32 {
-        let x = (self.ver_class_flow & 0b00001111111100000000000000000000) >> 20;
-        return x;
+        (self.ver_class_flow & 0b0000_1111_1111_0000_0000_0000_0000_0000) >> 20
     }
 
     // get flow label
     pub fn flow_label(self) -> u32 {
-        let x = (self.ver_class_flow & 0b00000000000011111111111111111111);
-        return x;
+        (self.ver_class_flow & 0b0000_0000_0000_1111_1111_1111_1111_1111)
     }
 
     // get src addr as str
