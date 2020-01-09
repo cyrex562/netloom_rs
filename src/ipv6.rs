@@ -5,9 +5,10 @@
 /// ref: https://tools.ietf.org/html/rfc2460
 use crate::util::{bytes_to_u16, bytes_to_u32, ipv6_to_str};
 use crate::ip_proto::Ipv4Proto;
-
-
-
+use log::{debug, error};
+use num_derive::{FromPrimitive, ToPrimitive};
+use num_traits::{FromPrimitive, ToPrimitive};
+use std::fmt::{Display, Formatter};
 
 
 // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -53,8 +54,8 @@ pub struct Ipv6Header {
 }
 
 impl Ipv6Header {
-    pub fn new(raw: &[u8]) -> Ipv6Header {
-        let mut x: Ipv6Header = Default::default();
+    pub fn new(raw: &[u8]) -> Self {
+        let mut x: Self = Default::default();
         x.ver_class_flow = bytes_to_u32(&raw[0..]);
         x.payload_len = bytes_to_u16(&raw[4..]);
         x.next_hdr = Ipv4Proto::from_byte(raw[6]);
@@ -76,7 +77,7 @@ impl Ipv6Header {
 
     // get flow label
     pub fn flow_label(self) -> u32 {
-        (self.ver_class_flow & 0b0000_0000_0000_1111_1111_1111_1111_1111)
+        self.ver_class_flow & 0b0000_0000_0000_1111_1111_1111_1111_1111
     }
 
     // get src addr as str
@@ -88,9 +89,10 @@ impl Ipv6Header {
     pub fn dst_addr_str(self) -> String {
         ipv6_to_str(&self.dst_addr)
     }
+}
 
-    // get header as str
-    pub fn to_string(self) -> String {
-        format!("Version: {}, Traffic Class: {}, Flow Label: {:X}, Payload Len: {}, Next Header: {:?}, Hop Limit: {}, Src Addr: {}, Dst Addr: {}", self.version(), self.class(), self.flow_label(), self.payload_len, self.next_hdr, self.hop_limit, self.src_addr_str(), self.dst_addr_str())
+impl Display for Ipv6Header {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Version: {}, Traffic Class: {}, Flow Label: {:X}, Payload Len: {}, Next Header: {:?}, Hop Limit: {}, Src Addr: {}, Dst Addr: {}", self.version(), self.class(), self.flow_label(), self.payload_len, self.next_hdr, self.hop_limit, self.src_addr_str(), self.dst_addr_str())
     }
 }

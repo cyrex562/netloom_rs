@@ -21,11 +21,11 @@ pub struct TransSvcProtoInfo {
 }
 
 impl TransSvcProtoInfo {
-    pub fn new(port: u16, trans_proto: Vec<TransProto>) -> TransSvcProtoInfo {
-        let mut x: TransSvcProtoInfo = Default::default();
-        x.port = port;
-        trans_proto = Vec::new();
-        return x;
+    pub fn new(port: u16, trans_proto: Vec<TransProto>) -> Self {
+        Self {
+            port: port,
+            trans_proto: Vec::new()
+        }
     }
 }
 
@@ -107,33 +107,33 @@ pub enum TransSvcProto {
 }
 
 impl From<TransSvcProto> for TransSvcProtoInfo {
-    fn from(f: TransSvcProto) -> TransSvcProtoInfo {
+    fn from(f: TransSvcProto) -> Self {
         match f {
-            TransSvcProto::NotSet => TransSvcProtoInfo {
+            TransSvcProto::NotSet => Self {
                 port: 0,
                 trans_proto: vec![TransProto::NotSet],
             },
-            TransSvcProto::FtpData => TransSvcProtoInfo {
+            TransSvcProto::FtpData => Self {
                 port: 20,
                 trans_proto: vec![TransProto::Tcp, TransProto::Udp, TransProto::Sctp],
             },
-            TransSvcProto::Ftp => TransSvcProtoInfo {
+            TransSvcProto::Ftp => Self {
                 port: 21,
                 trans_proto: vec![TransProto::Tcp, TransProto::Udp, TransProto::Sctp],
             },
-            TransSvcProto::Ssh => TransSvcProtoInfo {
+            TransSvcProto::Ssh => Self {
                 port: 22,
                 trans_proto: vec![TransProto::Tcp, TransProto::Udp, TransProto::Sctp],
             },
-            TransSvcProto::Telnet => TransSvcProtoInfo {
+            TransSvcProto::Telnet => Self {
                 port: 23,
                 trans_proto: vec![TransProto::Tcp, TransProto::Udp, TransProto::Sctp],
             },
-            TransSvcProto::Smtp => TransSvcProtoInfo {
+            TransSvcProto::Smtp => Self {
                 port: 25,
                 trans_proto: vec![TransProto::Tcp, TransProto::Udp],
             },
-            TransSvcProto::Domain => TransSvcProtoInfo {
+            TransSvcProto::Domain => Self {
                 port: 53,
                 trans_proto: vec![TransProto::Tcp, TransProto::Udp, TransProto::Sctp],
             },

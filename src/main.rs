@@ -121,9 +121,8 @@ fn main() {
     // todo: loop and capture packets
     let mut count: u32 = 0;
     loop {
-        if config.max_loop > 0 && count >= config.max_loop {
-            break;
-        }
+        if config.max_loop > 0 && count >= config.max_loop { break; }
+
         let mut pkt_info = PacketInfo::new();
         pkt_info.packet_data = match pcap::get_packet(cap_handle) {
             Err(why) => panic!("failed to get packet: {}", why),
@@ -217,7 +216,6 @@ fn main() {
     }
 
     debug!("finished!");
-    
 }
 
 // END OF FILE

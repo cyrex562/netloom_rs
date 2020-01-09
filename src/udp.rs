@@ -16,6 +16,7 @@
 /// +---------------- ...
 ///
 use crate::util::bytes_to_u16;
+use std::fmt::{Display, Formatter};
 
 #[derive(Copy, Clone, Default)]
 #[repr(C)]
@@ -27,19 +28,21 @@ pub struct UdpHeader {
 }
 
 impl UdpHeader {
-    pub fn new(raw_udp_hdr: &[u8]) -> UdpHeader {
-        let mut x: UdpHeader = Default::default();
-        x.src_port = bytes_to_u16(&raw_udp_hdr[0..]);
-        x.dst_port = bytes_to_u16(&raw_udp_hdr[2..]);
-        x.len = bytes_to_u16(&raw_udp_hdr[4..]);
-        x.chksum = bytes_to_u16(&raw_udp_hdr[6..]);
-        x
-    }
 
-    pub fn to_string(self) -> String {
-        format!(
-            "Src Port: {}, Dst Port: {}, Len: {}, Checksum: {:X}",
-            self.src_port, self.dst_port, self.len, self.chksum
-        )
+    pub fn new(raw_udp_hdr: &[u8]) -> Self {
+        Self {
+            src_port: bytes_to_u16(&raw_udp_hdr[0..]),
+            dst_port: bytes_to_u16(&raw_udp_hdr[2..]),
+            len: bytes_to_u16(&raw_udp_hdr[4..]),
+            chksum: bytes_to_u16(&raw_udp_hdr[6..]),
+        }
+
+    }
+}
+
+impl Display for UdpHeader {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Src Port: {}, Dst Port: {}, Len: {}, Checksum: {:X}",
+            self.src_port, self.dst_port, self.len, self.chksum)
     }
 }

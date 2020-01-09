@@ -6,8 +6,11 @@
 
 use crate::util::mac_to_str;
 use log::error;
-use num_derive::{FromPrimitive};
-use num_traits::{FromPrimitive};
+
+use num_derive::{FromPrimitive, ToPrimitive};
+use num_traits::{FromPrimitive, ToPrimitive};
+use std::fmt::{Display, Formatter};
+
 
 #[derive(FromPrimitive, Copy, Clone, PartialEq, Debug)]
 #[repr(u16)]
@@ -74,22 +77,24 @@ pub enum EtherType {
 
 impl Default for EtherType {
     fn default() -> Self {
-        EtherType::NotSet
+        Self::NotSet
     }
 }
 
 impl EtherType {
-    pub const SHORTEST_PATH_BRIDGING88A8: EtherType = EtherType::ProviderBridging;
-    pub const DNA_ROUTING: EtherType = EtherType::DecnetPhase4;
-    pub const SHORTEST_PATH_BRIDGING: EtherType = EtherType::VlanTag;
+    pub const SHORTEST_PATH_BRIDGING88A8: Self = Self::ProviderBridging;
+    pub const DNA_ROUTING: Self = Self::DecnetPhase4;
+    pub const SHORTEST_PATH_BRIDGING: Self = Self::VlanTag;
 
-    pub fn from_bytes(b: &[u8]) -> EtherType {
+    pub fn from_bytes(b: &[u8]) -> Self {
         let type_val = u16::to_be((b[1] as u16) << 8 | b[0] as u16);
-        match EtherType::from_u16(type_val) {
+
+        match Self::from_u16(type_val) {
+
             Some(val) => val,
             None => {
                 error!("invalid/unhandled Ether Type: {:02X}", type_val);
-                EtherType::NotSet
+                Self::NotSet
             }
         }
     }
@@ -104,21 +109,24 @@ pub struct EthernetFrame {
 }
 
 impl EthernetFrame {
-    pub fn new(raw_packet_data: &[u8]) -> EthernetFrame {
-        let mut x: EthernetFrame = Default::default();
+    pub fn new(raw_packet_data: &[u8]) -> Self {
+        let mut x: Self = Default::default();
         x.dest_addr.copy_from_slice(&raw_packet_data[0..6]);
         x.src_addr.copy_from_slice(&raw_packet_data[6..12]);
         x.ether_type = EtherType::from_bytes(&raw_packet_data[12..14]);
         x
     }
+}
 
-    pub fn to_string(self) -> String {
-        return format!(
+impl Display for EthernetFrame {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
             "src: {}, dst: {}, type: {:?}",
             mac_to_str(&self.src_addr),
             mac_to_str(&self.dest_addr),
             self.ether_type
-        );
+        )
     }
 }
 

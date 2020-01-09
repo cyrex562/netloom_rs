@@ -50,10 +50,10 @@ pub struct TcpOptEndOfList {
 }
 
 impl TcpOptEndOfList {
-    pub fn new() -> TcpOptEndOfList {
-        let mut x: TcpOptEndOfList = Default::default();
-        x.kind = TcpOptKind::EndOfList;
-        x
+    pub fn new() -> Self {
+        Self {
+            kind: TcpOptKind::EndOfList
+        }
     }
 }
 
@@ -65,10 +65,10 @@ pub struct TcpOptNop {
 }
 
 impl TcpOptNop {
-    pub fn new() -> TcpOptNop {
-        let mut x: TcpOptNop = Default::default();
-        x.kind = TcpOptKind::Nop;
-        x
+    pub fn new() -> Self {
+        Self {
+            kind: TcpOptKind::Nop
+        }
     }
 }
 
@@ -82,12 +82,12 @@ pub struct TcpOptMaxSegSz {
 }
 
 impl TcpOptMaxSegSz {
-    pub fn new() -> TcpOptMaxSegSz {
-        let mut x: TcpOptMaxSegSz = Default::default();
-        x.kind = TcpOptKind::MaxSegSz;
-        x.length = 4;
-        x.max_seg_sz = 0;
-        x
+    pub fn new() -> Self {
+        Self {
+            kind: TcpOptKind::MaxSegSz,
+            length: 4,
+            max_seg_sz: 0
+        }
     }
 }
 
@@ -101,12 +101,12 @@ pub struct TcpOptWinScale {
 }
 
 impl TcpOptWinScale {
-    pub fn new() -> TcpOptWinScale {
-        let mut x: TcpOptWinScale = Default::default();
-        x.kind = TcpOptKind::WinScale;
-        x.length = 3;
-        x.shift_cnt = 0;
-        x
+    pub fn new() -> Self {
+        Self {
+            kind: TcpOptKind::WinScale,
+            length: 3,
+            shift_cnt: 0
+        }
     }
 }
 
@@ -119,11 +119,11 @@ pub struct TcpOptSackOk {
 }
 
 impl TcpOptSackOk {
-    pub fn new() -> TcpOptSackOk {
-        let mut x: TcpOptSackOk = Default::default();
-        x.kind = TcpOptKind::SackOk;
-        x.length = 2;
-        x
+    pub fn new() -> Self {
+        Self {
+            kind: TcpOptKind::SackOk,
+            length: 2
+        }
     }
 }
 
@@ -137,12 +137,13 @@ pub struct TcpOptSack {
 }
 
 impl TcpOptSack {
-    pub fn new() -> TcpOptSack {
-        let mut x: TcpOptSack = Default::default();
-        x.kind = TcpOptKind::Sack;
-        x.length = 0;
-        x.blocks = [0, 0, 0, 0];
-        x
+
+    pub fn new() -> Self {
+        Self {
+            kind: TcpOptKind::Sack,
+            length: 0,
+            blocks: [0, 0, 0, 0]
+        }
     }
 }
 
@@ -157,13 +158,13 @@ pub struct TcpOptTimestamp {
 }
 
 impl TcpOptTimestamp {
-    pub fn new() -> TcpOptTimestamp {
-        let mut x: TcpOptTimestamp = Default::default();
-        x.kind = TcpOptKind::Timestamp;
-        x.length = 10;
-        x.ts_val = 0;
-        x.ts_echo_reply = 0;
-        x
+    pub fn new() -> Self {
+        Self {
+            kind: TcpOptKind::Timestamp,
+            length: 10,
+            ts_val: 0,
+            ts_echo_reply: 0
+        }
     }
 }
 
@@ -190,7 +191,7 @@ impl TcpOptTimestamp {
 
 impl Default for TcpOptKind {
     fn default() -> Self {
-        TcpOptKind::Reserved
+        Self::Reserved
     }
 }
 
@@ -226,7 +227,7 @@ pub enum TcpOptions {
 // 6 : MP_FAIL : Fallback
 // 7 : MP_FASTCLOSE : Fast Close
 // 8 : MP_TCPRST : Subflow Reset
-// 0x9-0xe : Unassigned
+// 0x9-0xe : Unahttps://github.com/cyrex562/netloom_rs/pull/4/conflict?name=src%252Ftcp.rs&ancestor_oid=dabc55d2459b788d487b1347385a2eb92203ca95&base_oid=9a8039d3f9f049614b0f5261f8a9edefb712b930&head_oid=f658f991aa7f29051dc5dfeb220ec463205a612cssigned
 // 0xf : Reserved
 
 // MPTCP Handshake Algorithms : RFC6284
@@ -325,22 +326,24 @@ pub struct TcpHeader {
 }
 
 impl TcpHeader {
-    pub fn new(raw: &[u8]) -> TcpHeader {
-        let mut x: TcpHeader = Default::default();
-        x.src_port = bytes_to_u16(&raw[0..]);
-        x.dst_port = bytes_to_u16(&raw[2..]);
-        x.seq_num = bytes_to_u32(&raw[4..]);
-        x.ack_num = bytes_to_u32(&raw[8..]);
-        x.data_off_reserved_control_bits = bytes_to_u16(&raw[12..]);
-        x.window = bytes_to_u16(&raw[14..]);
-        x.checksum = bytes_to_u16(&raw[16..]);
-        x.urg_ptr = bytes_to_u16(&raw[18..]);
-        x
+
+    pub fn new(raw: &[u8]) -> Self {
+        Self {
+            src_port: bytes_to_u16(&raw[0..]),
+            dst_port: bytes_to_u16(&raw[2..]),
+            seq_num: bytes_to_u32(&raw[4..]),
+            ack_num: bytes_to_u32(&raw[8..]),
+            data_off_reserved_control_bits: bytes_to_u16(&raw[12..]),
+            window: bytes_to_u16(&raw[14..]),
+            checksum: bytes_to_u16(&raw[16..]),
+            urg_ptr: bytes_to_u16(&raw[18..])
+        }
+
     }
 
     // decode data_off
     pub fn data_off(self) -> u16 {
-        let x = (self.data_off_reserved_control_bits & 0b1111000000000000) >> 12;
+        let x = (self.data_off_reserved_control_bits & 0b1111_0000_0000_0000) >> 12;
         debug!(
             "raw: {:X}, data offset: {}",
             self.data_off_reserved_control_bits, x

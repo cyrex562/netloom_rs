@@ -117,9 +117,7 @@ pub enum AddressFamily {
 }
 
 pub fn check_addr_family(val1: &AddressFamily, val2: &AddressFamily) -> bool {
-    let ival2 = *val2 as u32;
-    let ival1 = *val1 as u32;
-    ival1 == ival2
+    *val1 as u32 == *val2 as u32
 }
 
 type time_t = c_long;
@@ -375,9 +373,8 @@ impl PcapIfcInfo {
 // https://doc.rust-lang.org/nomicon/working-with-unsafe.html
 
 pub unsafe fn extract_addr_netmask(addresses: *mut pcap_addr) -> PcapAddr {
-    let netmask: PcapAddr;
     if !(*addresses).netmask.is_null() {
-        netmask = PcapAddr {
+        PcapAddr {
             family: num::FromPrimitive::from_u16((*(*addresses).netmask).sa_family).unwrap(),
             data: [
                 (*(*addresses).netmask).sa_data[0] as u8,
@@ -413,20 +410,21 @@ pub unsafe fn extract_addr_netmask(addresses: *mut pcap_addr) -> PcapAddr {
                 0,
                 0,
             ],
-        };
+        }
     } else {
-        netmask = PcapAddr {
+        PcapAddr {
             family: AddressFamily::AF_UNSPEC,
             data: [0; 32],
-        };
+        }
     }
+
     netmask
+
 }
 
 pub unsafe fn extract_addr_addr(addresses: *mut pcap_addr) -> PcapAddr {
-    let addr: PcapAddr;
     if !(*addresses).addr.is_null() {
-        addr = PcapAddr {
+        PcapAddr {
             family: num::FromPrimitive::from_u16((*(*addresses).addr).sa_family).unwrap(),
             data: [
                 (*(*addresses).addr).sa_data[0] as u8,
@@ -462,20 +460,21 @@ pub unsafe fn extract_addr_addr(addresses: *mut pcap_addr) -> PcapAddr {
                 0,
                 0,
             ],
-        };
+        }
     } else {
-        addr = PcapAddr {
+        PcapAddr {
             family: AddressFamily::AF_UNSPEC,
             data: [0; 32],
-        };
+        }
     }
+
     addr
+
 }
 
 pub unsafe fn extract_addr_bcast(addresses: *mut pcap_addr) -> PcapAddr {
-    let bcast: PcapAddr;
     if !(*addresses).broadaddr.is_null() {
-        bcast = PcapAddr {
+        PcapAddr {
             family: num::FromPrimitive::from_u16((*(*addresses).broadaddr).sa_family).unwrap(),
             data: [
                 (*(*addresses).broadaddr).sa_data[0] as u8,
@@ -511,20 +510,21 @@ pub unsafe fn extract_addr_bcast(addresses: *mut pcap_addr) -> PcapAddr {
                 0,
                 0,
             ],
-        };
+        }
     } else {
-        bcast = PcapAddr {
+        PcapAddr {
             family: AddressFamily::AF_UNSPEC,
             data: [0; 32],
-        };
+        }
     }
+
     bcast
+
 }
 
 pub unsafe fn extract_addr_dest(addresses: *mut pcap_addr) -> PcapAddr {
-    let dest: PcapAddr;
     if !(*addresses).dstaddr.is_null() {
-        dest = PcapAddr {
+        PcapAddr {
             family: num::FromPrimitive::from_u16((*(*addresses).dstaddr).sa_family).unwrap(),
             data: [
                 (*(*addresses).dstaddr).sa_data[0] as u8,
@@ -560,15 +560,17 @@ pub unsafe fn extract_addr_dest(addresses: *mut pcap_addr) -> PcapAddr {
                 0,
                 0,
             ],
-        };
+        }
     } else {
-        dest = PcapAddr {
+        PcapAddr {
             family: AddressFamily::AF_UNSPEC,
             data: [0; 32],
-        };
+        }
     }
 
+
     dest
+
 }
 
 pub fn extract_dev_name(curr_dev: *mut pcap_if_t) -> String {
@@ -824,7 +826,8 @@ pub fn get_packet(cap_handle: *mut pcap_t) -> Result<PacketData, &'static str> {
     match is_err {
         true => Err("failed to get packet"),
         false => Ok(out_data),
-    };
+    }
+
 }
 
 // END OF FILE

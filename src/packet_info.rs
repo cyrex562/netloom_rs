@@ -14,8 +14,8 @@ pub struct PacketInfo {
 }
 
 impl PacketInfo {
-    pub fn new() -> PacketInfo {
-        PacketInfo {
+    pub fn new() -> Self {
+        Self {
             packet_data: PacketData::new(),
             headers: vec![],
         }
