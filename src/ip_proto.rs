@@ -142,7 +142,7 @@ pub enum Ipv4Proto {
     Fc = 133,             // Fibre Channel, RFC6172
     RsvpE2EIgnore = 134,  // RSVP E2E Ignore RFC3175
     MobilityHeader = 135, // Mobility Header RFC6275
-    Udphttps://github.com/cyrex562/netloom_rs/pull/4/conflict?name=src%252Fpcap.rs&ancestor_oid=5427c708ad96ab5906ceefeff12969264a2d8e74&base_oid=03794350c764a8615005bdaead08f9dfcc9c2fe6&head_oid=caf0cde7485db0bf51502eda5f7a903e1cc70cfdLite = 136,        // RFC3828
+    UdpLite = 136,        // RFC3828
     MplsInIp = 137,       // RFC4023
     Manet = 138,          // MANET Protocols, RFC5498
     Hip = 139,            // Host Identity Protocol, RFC7401

@@ -2,6 +2,7 @@
 #![allow(non_camel_case_types)]
 #![allow(dead_code)]
 
+use libc::FILE;
 use libc::{c_char, c_int, c_long, c_uchar, c_uint, c_ushort, sockaddr};
 use log::{debug, error, warn};
 use num_derive::FromPrimitive;
@@ -417,9 +418,6 @@ pub unsafe fn extract_addr_netmask(addresses: *mut pcap_addr) -> PcapAddr {
             data: [0; 32],
         }
     }
-
-    netmask
-
 }
 
 pub unsafe fn extract_addr_addr(addresses: *mut pcap_addr) -> PcapAddr {
@@ -467,9 +465,6 @@ pub unsafe fn extract_addr_addr(addresses: *mut pcap_addr) -> PcapAddr {
             data: [0; 32],
         }
     }
-
-    addr
-
 }
 
 pub unsafe fn extract_addr_bcast(addresses: *mut pcap_addr) -> PcapAddr {
@@ -517,9 +512,6 @@ pub unsafe fn extract_addr_bcast(addresses: *mut pcap_addr) -> PcapAddr {
             data: [0; 32],
         }
     }
-
-    bcast
-
 }
 
 pub unsafe fn extract_addr_dest(addresses: *mut pcap_addr) -> PcapAddr {
@@ -567,9 +559,6 @@ pub unsafe fn extract_addr_dest(addresses: *mut pcap_addr) -> PcapAddr {
             data: [0; 32],
         }
     }
-
-
-    dest
 
 }
 
