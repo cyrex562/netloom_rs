@@ -13,7 +13,7 @@ pub enum TransProto {
     Sctp,
 }
 
-#[derive(Copy, Clone, PartialEq, Debug, Default)]
+#[derive(Clone, PartialEq, Debug, Default)]
 #[repr(C)]
 pub struct TransSvcProtoInfo {
     pub port: u16,
@@ -23,7 +23,7 @@ pub struct TransSvcProtoInfo {
 impl TransSvcProtoInfo {
     pub fn new(port: u16, trans_proto: Vec<TransProto>) -> Self {
         Self {
-            port: port,
+            port,
             trans_proto: Vec::new()
         }
     }
@@ -103,7 +103,6 @@ pub enum TransSvcProto {
     EtcdClient = 2379,     // tcp, udp
     EtcdServer = 2380,     // tcp, udp
     Vcmp = 2427,           // tcp, udp, Velocloud Multipath Protocol
-    MgcpGw = 2427,         // tcp, udp, Media Gateway Control Protocol Gateway
 }
 
 impl From<TransSvcProto> for TransSvcProtoInfo {
@@ -137,6 +136,12 @@ impl From<TransSvcProto> for TransSvcProtoInfo {
                 port: 53,
                 trans_proto: vec![TransProto::Tcp, TransProto::Udp, TransProto::Sctp],
             },
+            _ => Self {
+                port: 0,
+                trans_proto: vec![],
+            }
         }
     }
 }
+
+// END OF FILE

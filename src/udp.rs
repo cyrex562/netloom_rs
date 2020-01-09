@@ -15,6 +15,7 @@
 /// |          data octets ...
 /// +---------------- ...
 ///
+
 use crate::util::bytes_to_u16;
 use std::fmt::{Display, Formatter};
 
@@ -46,3 +47,6 @@ impl Display for UdpHeader {
             self.src_port, self.dst_port, self.len, self.chksum)
     }
 }
+
+// END OF FILE
+

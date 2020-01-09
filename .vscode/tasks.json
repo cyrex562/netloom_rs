@@ -11,17 +11,5 @@
             ],
             "group": "build"
         },
-        // {
-        //     "label": "give_bin_pcap_privs",
-        //     "type": "shell",
-        //     "command": "sudo setcap cap_net_raw,cap_net_admin=eip ./target/debug/net_loom_rs",
-        // },
-        // {
-        //     "label": "run_sudo_gdbserver",
-        //     "type": "shell",
-        //     "command": "sudo gdbserver localhost:2345 ./target/debug/net_loom_rs",
-        //     "isBackground": true
-        // }
-
     ]
 }
