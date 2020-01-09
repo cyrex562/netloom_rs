@@ -2,7 +2,7 @@
 /// Functions for parsing and generating ARP protocol messages
 ///
 use crate::util::{ipv4_to_str, mac_to_str};
-use log::{debug, error};
+use log::{error};
 use num_derive::{FromPrimitive, ToPrimitive};
 use num_traits::{FromPrimitive, ToPrimitive};
 use std::fmt::{Display, Formatter};

@@ -1,15 +1,15 @@
-use crate::ip_proto::Ipv4Proto;
 ///
 /// ## ipv4.rs
 /// IPv4 Protocol Suite
 ///
 /// ref: shttps://tools.ietf.org/html/rfc791#section-3.1
 ///
-use crate::util::{bytes_to_u16, bytes_to_u32, ipv4_to_str, mac_to_str, u32_ip4_to_str};
-use log::{debug, error};
-use num_derive::{FromPrimitive, ToPrimitive};
-use num_traits::{FromPrimitive, ToPrimitive};
-use std::fmt::{Display, Formatter};
+
+use crate::ip_proto::Ipv4Proto;
+use crate::util::{bytes_to_u16, bytes_to_u32, u32_ip4_to_str};
+use num_derive::{FromPrimitive};
+use num_traits::{FromPrimitive};
+
 
 // https://tools.ietf.org/html/rfc791#section-3.1
 #[derive(Copy, Clone, Default)]
@@ -237,6 +237,10 @@ impl Ipv4Header {
 
     pub fn dst_addr_str(self) -> String {
         u32_ip4_to_str(self.dst_addr)
+    }
+
+    pub fn to_string(self) -> String {
+        format!("version: {}, IHL: {}, TOS: {:?}, Tot Len: {}, IP ID: {:02x}, Flags: {:?}, Frag Off: {}, TTL: {}, Proto: {:?}, Checksum: {:02x}, Src Addr: {}, Dst Addr: {}", self.version(), self.ihl(), self.expand_tos(), self.tot_len, self.ip_id, self.flags(), self.frag_off(), self.ttl, self.proto, self.chksum, self.src_addr_str(), self.dst_addr_str())
     }
 
     // todo: calculate checksum

@@ -6,8 +6,8 @@
 /// ref: https://tools.ietf.org/html/rfc2018
 use crate::util::{bytes_to_u16, bytes_to_u32};
 use log::{debug, warn};
-use num_derive::{FromPrimitive, ToPrimitive};
-use num_traits::{FromPrimitive, ToPrimitive};
+use num_derive::{FromPrimitive};
+use num_traits::{FromPrimitive};
 
 // options
 // https://www.iana.org/assignments/tcp-parameters/tcp-parameters.xhtml
@@ -137,6 +137,7 @@ pub struct TcpOptSack {
 }
 
 impl TcpOptSack {
+
     pub fn new() -> Self {
         Self {
             kind: TcpOptKind::Sack,
@@ -226,7 +227,7 @@ pub enum TcpOptions {
 // 6 : MP_FAIL : Fallback
 // 7 : MP_FASTCLOSE : Fast Close
 // 8 : MP_TCPRST : Subflow Reset
-// 0x9-0xe : Unassigned
+// 0x9-0xe : Unahttps://github.com/cyrex562/netloom_rs/pull/4/conflict?name=src%252Ftcp.rs&ancestor_oid=dabc55d2459b788d487b1347385a2eb92203ca95&base_oid=9a8039d3f9f049614b0f5261f8a9edefb712b930&head_oid=f658f991aa7f29051dc5dfeb220ec463205a612cssigned
 // 0xf : Reserved
 
 // MPTCP Handshake Algorithms : RFC6284
@@ -325,6 +326,7 @@ pub struct TcpHeader {
 }
 
 impl TcpHeader {
+
     pub fn new(raw: &[u8]) -> Self {
         Self {
             src_port: bytes_to_u16(&raw[0..]),
@@ -336,6 +338,7 @@ impl TcpHeader {
             checksum: bytes_to_u16(&raw[16..]),
             urg_ptr: bytes_to_u16(&raw[18..])
         }
+
     }
 
     // decode data_off

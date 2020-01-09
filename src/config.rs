@@ -1,3 +1,8 @@
+///
+/// ## config.rs
+/// 
+/// Data structures that serde uses for parsing the configuration
+
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]

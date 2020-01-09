@@ -28,6 +28,7 @@ pub struct UdpHeader {
 }
 
 impl UdpHeader {
+
     pub fn new(raw_udp_hdr: &[u8]) -> Self {
         Self {
             src_port: bytes_to_u16(&raw_udp_hdr[0..]),
@@ -35,6 +36,7 @@ impl UdpHeader {
             len: bytes_to_u16(&raw_udp_hdr[4..]),
             chksum: bytes_to_u16(&raw_udp_hdr[6..]),
         }
+
     }
 }
 

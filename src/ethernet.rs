@@ -1,8 +1,16 @@
+///
+/// ## ethernet.rs
+/// 
+/// Data structures and functions for handling the Ethernet protocol
+/// 
+
 use crate::util::mac_to_str;
 use log::error;
+
 use num_derive::{FromPrimitive, ToPrimitive};
 use num_traits::{FromPrimitive, ToPrimitive};
 use std::fmt::{Display, Formatter};
+
 
 #[derive(FromPrimitive, Copy, Clone, PartialEq, Debug)]
 #[repr(u16)]
@@ -80,7 +88,9 @@ impl EtherType {
 
     pub fn from_bytes(b: &[u8]) -> Self {
         let type_val = u16::to_be((b[1] as u16) << 8 | b[0] as u16);
+
         match Self::from_u16(type_val) {
+
             Some(val) => val,
             None => {
                 error!("invalid/unhandled Ether Type: {:02X}", type_val);
@@ -132,3 +142,5 @@ pub struct EtherSnapPacket {
     org_code: [u8; 3],   // org code, which org assigned ether type field,
     ether_type: [u8; 2], // which upper layer proto will use the ether frame
 }
+
+// end of file

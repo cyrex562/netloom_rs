@@ -2,7 +2,7 @@
 #![allow(non_camel_case_types)]
 #![allow(dead_code)]
 
-use libc::{c_char, c_int, c_long, c_uchar, c_uint, c_ushort, sockaddr, FILE};
+use libc::{c_char, c_int, c_long, c_uchar, c_uint, c_ushort, sockaddr};
 use log::{debug, error, warn};
 use num_derive::FromPrimitive;
 use std::ffi::CString;
@@ -417,6 +417,9 @@ pub unsafe fn extract_addr_netmask(addresses: *mut pcap_addr) -> PcapAddr {
             data: [0; 32],
         }
     }
+
+    netmask
+
 }
 
 pub unsafe fn extract_addr_addr(addresses: *mut pcap_addr) -> PcapAddr {
@@ -464,6 +467,9 @@ pub unsafe fn extract_addr_addr(addresses: *mut pcap_addr) -> PcapAddr {
             data: [0; 32],
         }
     }
+
+    addr
+
 }
 
 pub unsafe fn extract_addr_bcast(addresses: *mut pcap_addr) -> PcapAddr {
@@ -511,6 +517,9 @@ pub unsafe fn extract_addr_bcast(addresses: *mut pcap_addr) -> PcapAddr {
             data: [0; 32],
         }
     }
+
+    bcast
+
 }
 
 pub unsafe fn extract_addr_dest(addresses: *mut pcap_addr) -> PcapAddr {
@@ -558,6 +567,10 @@ pub unsafe fn extract_addr_dest(addresses: *mut pcap_addr) -> PcapAddr {
             data: [0; 32],
         }
     }
+
+
+    dest
+
 }
 
 pub fn extract_dev_name(curr_dev: *mut pcap_if_t) -> String {
@@ -618,8 +631,8 @@ pub fn get_net_ifcs() -> Vec<PcapIfcInfo> {
                 let bcast: PcapAddr = extract_addr_bcast(addresses);
                 let dest: PcapAddr = extract_addr_dest(addresses);
                 let addr_info = PcapIfcAddrInfo {
-                    netmask: netmask,
-                    addr: addr,
+                    netmask,
+                    addr,
                     bcast_addr: bcast,
                     dest_addr: dest,
                 };
@@ -814,6 +827,7 @@ pub fn get_packet(cap_handle: *mut pcap_t) -> Result<PacketData, &'static str> {
         true => Err("failed to get packet"),
         false => Ok(out_data),
     }
+
 }
 
 // END OF FILE

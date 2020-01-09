@@ -1,7 +1,7 @@
-use crate::util::{bytes_to_u16, bytes_to_u32, ipv4_to_str, mac_to_str, u32_ip4_to_str};
-use log::{debug, error};
-use num_derive::{FromPrimitive, ToPrimitive};
-use num_traits::{FromPrimitive, ToPrimitive};
+
+use log::{error};
+use num_derive::{FromPrimitive};
+use num_traits::{FromPrimitive};
 
 #[derive(Copy, Clone, PartialEq, FromPrimitive, Debug)]
 #[repr(u8)]
@@ -142,7 +142,7 @@ pub enum Ipv4Proto {
     Fc = 133,             // Fibre Channel, RFC6172
     RsvpE2EIgnore = 134,  // RSVP E2E Ignore RFC3175
     MobilityHeader = 135, // Mobility Header RFC6275
-    UdpLite = 136,        // RFC3828
+    Udphttps://github.com/cyrex562/netloom_rs/pull/4/conflict?name=src%252Fpcap.rs&ancestor_oid=5427c708ad96ab5906ceefeff12969264a2d8e74&base_oid=03794350c764a8615005bdaead08f9dfcc9c2fe6&head_oid=caf0cde7485db0bf51502eda5f7a903e1cc70cfdLite = 136,        // RFC3828
     MplsInIp = 137,       // RFC4023
     Manet = 138,          // MANET Protocols, RFC5498
     Hip = 139,            // Host Identity Protocol, RFC7401
