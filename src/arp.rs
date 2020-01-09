@@ -2,7 +2,7 @@
 /// Functions for parsing and generating ARP protocol messages
 ///
 use crate::util::{ipv4_to_str, mac_to_str};
-use log::{debug, error};
+use log::{error};
 use num_derive::{FromPrimitive, ToPrimitive};
 use num_traits::{FromPrimitive, ToPrimitive};
 
@@ -57,14 +57,13 @@ pub enum ArpHardwareType {
 impl ArpHardwareType {
     pub fn from_bytes(b: &[u8]) -> ArpHardwareType {
         let type_val = u16::to_be((b[1] as u16) << 8 | b[0] as u16);
-        let val = match ArpHardwareType::from_u16(type_val) {
+        match ArpHardwareType::from_u16(type_val) {
             Some(val) => val,
             None => {
                 error!("invalid/unhandled hardware type: {:02X}", type_val);
                 ArpHardwareType::ReservedEnd
             }
-        };
-        return val;
+        }
     }
 }
 
@@ -84,14 +83,13 @@ pub enum ArpProtoType {
 impl ArpProtoType {
     fn from_bytes(b: &[u8]) -> ArpProtoType {
         let type_val = u16::to_be((b[1] as u16) << 8 | b[0] as u16);
-        let val = match ArpProtoType::from_u16(type_val) {
+        match ArpProtoType::from_u16(type_val) {
             Some(val) => val,
             None => {
                 error!("invalid/unhandled proto type: {:02X}", type_val);
                 ArpProtoType::NotSet
             }
-        };
-        return val;
+        }
     }
 }
 
@@ -130,14 +128,13 @@ impl Default for ArpOpcode {
 impl ArpOpcode {
     fn from_bytes(b: &[u8]) -> ArpOpcode {
         let type_val = u16::to_be((b[1] as u16) << 8 | b[0] as u16);
-        let val = match ArpOpcode::from_u16(type_val) {
+        match ArpOpcode::from_u16(type_val) {
             Some(val) => val,
             None => {
                 error!("invalid/unhandled opcode: {:02X}", type_val);
                 ArpOpcode::Reserved
             }
-        };
-        return val;
+        }
     }
 }
 
@@ -167,7 +164,7 @@ impl ArpPacket {
         x.snd_proto_addr.copy_from_slice(&raw_arp_hdr[14..18]);
         x.tgt_hw_addr.copy_from_slice(&raw_arp_hdr[18..24]);
         x.tgt_proto_addr.copy_from_slice(&raw_arp_hdr[24..28]);
-        return x;
+        x
     }
 
     pub fn to_string(self) -> String {

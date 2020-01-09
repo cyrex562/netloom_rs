@@ -1,7 +1,7 @@
-use crate::arp::ArpPacket;
 ///
 /// ## packet_headers.rs
 ///
+use crate::arp::ArpPacket;
 use crate::ethernet::{EtherSnapPacket, EthernetFrame, LlcPacket};
 use crate::ipv4::Ipv4Header;
 use crate::ipv6::Ipv6Header;

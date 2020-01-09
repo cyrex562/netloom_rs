@@ -6,8 +6,8 @@
 /// ref: https://tools.ietf.org/html/rfc2018
 use crate::util::{bytes_to_u16, bytes_to_u32};
 use log::{debug, warn};
-use num_derive::{FromPrimitive, ToPrimitive};
-use num_traits::{FromPrimitive, ToPrimitive};
+use num_derive::{FromPrimitive};
+use num_traits::{FromPrimitive};
 
 // options
 // https://www.iana.org/assignments/tcp-parameters/tcp-parameters.xhtml
@@ -53,7 +53,7 @@ impl TcpOptEndOfList {
     pub fn new() -> TcpOptEndOfList {
         let mut x: TcpOptEndOfList = Default::default();
         x.kind = TcpOptKind::EndOfList;
-        return x;
+        x
     }
 }
 
@@ -68,7 +68,7 @@ impl TcpOptNop {
     pub fn new() -> TcpOptNop {
         let mut x: TcpOptNop = Default::default();
         x.kind = TcpOptKind::Nop;
-        return x;
+        x
     }
 }
 
@@ -87,7 +87,7 @@ impl TcpOptMaxSegSz {
         x.kind = TcpOptKind::MaxSegSz;
         x.length = 4;
         x.max_seg_sz = 0;
-        return x;
+        x
     }
 }
 
@@ -106,7 +106,7 @@ impl TcpOptWinScale {
         x.kind = TcpOptKind::WinScale;
         x.length = 3;
         x.shift_cnt = 0;
-        return x;
+        x
     }
 }
 
@@ -123,7 +123,7 @@ impl TcpOptSackOk {
         let mut x: TcpOptSackOk = Default::default();
         x.kind = TcpOptKind::SackOk;
         x.length = 2;
-        return x;
+        x
     }
 }
 
@@ -142,7 +142,7 @@ impl TcpOptSack {
         x.kind = TcpOptKind::Sack;
         x.length = 0;
         x.blocks = [0, 0, 0, 0];
-        return x;
+        x
     }
 }
 
@@ -163,7 +163,7 @@ impl TcpOptTimestamp {
         x.length = 10;
         x.ts_val = 0;
         x.ts_echo_reply = 0;
-        return x;
+        x
     }
 }
 
@@ -335,7 +335,7 @@ impl TcpHeader {
         x.window = bytes_to_u16(&raw[14..]);
         x.checksum = bytes_to_u16(&raw[16..]);
         x.urg_ptr = bytes_to_u16(&raw[18..]);
-        return x;
+        x
     }
 
     // decode data_off
@@ -345,7 +345,7 @@ impl TcpHeader {
             "raw: {:X}, data offset: {}",
             self.data_off_reserved_control_bits, x
         );
-        return x;
+        x
     }
 
     // decode control_bits
@@ -372,7 +372,7 @@ impl TcpHeader {
         if ctrl_field & 0x01 > 0 {
             out_bits.push(TcpControlBits::Fin);
         }
-        return out_bits;
+        out_bits
     }
 
     // decode options;
@@ -437,7 +437,7 @@ impl TcpHeader {
                 };
             }
         }
-        return options;
+        options
     }
 
     // string

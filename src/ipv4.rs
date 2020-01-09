@@ -1,15 +1,14 @@
-use crate::ip_proto::Ipv4Proto;
 ///
 /// ## ipv4.rs
 /// IPv4 Protocol Suite
 ///
 /// ref: shttps://tools.ietf.org/html/rfc791#section-3.1
 ///
-use crate::util::{bytes_to_u16, bytes_to_u32, ipv4_to_str, mac_to_str, u32_ip4_to_str};
-use log::{debug, error};
-use num_derive::{FromPrimitive, ToPrimitive};
-use num_traits::{FromPrimitive, ToPrimitive};
 
+use crate::ip_proto::Ipv4Proto;
+use crate::util::{bytes_to_u16, bytes_to_u32, u32_ip4_to_str};
+use num_derive::{FromPrimitive};
+use num_traits::{FromPrimitive};
 
 // https://tools.ietf.org/html/rfc791#section-3.1
 #[derive(Copy, Clone, Default)]
@@ -47,23 +46,23 @@ impl Default for Ipv4TosPrecedence {
 
 impl Ipv4TosPrecedence {
     fn from_byte(b: u8) -> Ipv4TosPrecedence {
-        if b & 0b11100000 == 1 {
-            return Ipv4TosPrecedence::NetCtrl;
-        } else if b & 0b11100000 == 1 {
-            return Ipv4TosPrecedence::InternetworkControl;
-        } else if b & 0b10100000 == 1 {
-            return Ipv4TosPrecedence::CriticEcp;
-        } else if b & 0b10000000 == 1 {
-            return Ipv4TosPrecedence::FlashOverride;
-        } else if b & 0b01100000 == 1 {
-            return Ipv4TosPrecedence::Flash;
-        } else if b & 0b01000000 == 1 {
-            return Ipv4TosPrecedence::Immediate;
-        } else if b & 0b00100000 == 1 {
-            return Ipv4TosPrecedence::Priority;
+        if b & 0b1110_0000 == 1 {
+            Ipv4TosPrecedence::NetCtrl
+        } else if b & 0b1110_0000 == 1 {
+            Ipv4TosPrecedence::InternetworkControl
+        } else if b & 0b1010_0000 == 1 {
+            Ipv4TosPrecedence::CriticEcp
+        } else if b & 0b1000_0000 == 1 {
+            Ipv4TosPrecedence::FlashOverride
+        } else if b & 0b0110_0000 == 1 {
+            Ipv4TosPrecedence::Flash
+        } else if b & 0b0100_0000 == 1 {
+            Ipv4TosPrecedence::Immediate
+        } else if b & 0b0010_0000 == 1 {
+            Ipv4TosPrecedence::Priority
         } else {
-            return Ipv4TosPrecedence::Routine;
-        };
+            Ipv4TosPrecedence::Routine
+        }
     }
 }
 
@@ -81,11 +80,11 @@ impl Default for Ipv4TosDelay {
 
 impl Ipv4TosDelay {
     fn from_byte(b: u8) -> Ipv4TosDelay {
-        if b & 0b00010000 == 1 {
-            return Ipv4TosDelay::LowDelay;
+        if b & 0b0001_0000 == 1 {
+            Ipv4TosDelay::LowDelay
         } else {
-            return Ipv4TosDelay::NormalDelay;
-        };
+            Ipv4TosDelay::NormalDelay
+        }
     }
 }
 
@@ -103,10 +102,10 @@ impl Default for Ipv4TosThroughput {
 
 impl Ipv4TosThroughput {
     fn from_byte(b: u8) -> Ipv4TosThroughput {
-        if b & 0b000001000 == 1 {
-            return Ipv4TosThroughput::HighThroughput;
+        if b & 0b0_0000_1000 == 1 {
+            Ipv4TosThroughput::HighThroughput
         } else {
-            return Ipv4TosThroughput::NormalThroughput;
+            Ipv4TosThroughput::NormalThroughput
         }
     }
 }
@@ -125,11 +124,11 @@ impl Default for Ipv4TosReliability {
 
 impl Ipv4TosReliability {
     fn from_byte(b: u8) -> Ipv4TosReliability {
-        if b & 0b000000100 == 1 {
-            return Ipv4TosReliability::HighReliability;
+        if b & 0b0_0000_0100 == 1 {
+            Ipv4TosReliability::HighReliability
         } else {
-            return Ipv4TosReliability::NormalReliability;
-        };
+            Ipv4TosReliability::NormalReliability
+        }
     }
 }
 
@@ -148,7 +147,7 @@ impl Ipv4Tos {
         x.delay = Ipv4TosDelay::from_byte(b);
         x.throughput = Ipv4TosThroughput::from_byte(b);
         x.reliability = Ipv4TosReliability::from_byte(b);
-        return x;
+        x
     }
 
     fn to_string(self) -> String {
@@ -178,17 +177,17 @@ impl Default for Ipv4Flags {
 impl Ipv4Flags {
     fn from_u16(w: u16) -> [Ipv4Flags; 2] {
         let mut out_flags: [Ipv4Flags; 2] = [Ipv4Flags::NotSet, Ipv4Flags::NotSet];
-        if w & 0b0100000000000000 == 0 {
+        if w & 0b0100_0000_0000_0000 == 0 {
             out_flags[0] = Ipv4Flags::MayFragment
-        } else if w & 0b0100000000000000 == 1 {
+        } else if w & 0b0100_0000_0000_0000 == 1 {
             out_flags[0] = Ipv4Flags::DontFragment
-        } else if w & 0b0010000000000000 == 0 {
+        } else if w & 0b0010_0000_0000_0000 == 0 {
             out_flags[1] = Ipv4Flags::LastFragment
-        } else if w & 0b0010000000000000 == 1 {
+        } else if w & 0b0010_0000_0000_0000 == 1 {
             out_flags[1] = Ipv4Flags::LastFragment
         }
 
-        return out_flags;
+        out_flags
     }
 }
 
@@ -205,42 +204,35 @@ impl Ipv4Header {
         x.chksum = bytes_to_u16(&raw_ip4_hdr[10..]);
         x.src_addr = bytes_to_u32(&raw_ip4_hdr[12..]);
         x.dst_addr = bytes_to_u32(&raw_ip4_hdr[16..]);
-        return x;
+        x
     }
 
     pub fn version(self) -> u8 {
-        let x = (self.version_ihl & 0b11110000) >> 4;
-        return x;
+        (self.version_ihl & 0b1111_0000) >> 4
     }
 
     pub fn ihl(self) -> u8 {
-        let x = self.version_ihl & 0b00001111;
-        return x;
+        self.version_ihl & 0b0000_1111
     }
 
     pub fn expand_tos(self) -> Ipv4Tos {
-        let x = Ipv4Tos::new(self.tos);
-        return x;
+        Ipv4Tos::new(self.tos)
     }
 
     pub fn flags(self) -> u16 {
-        let x: u16 = self.flags_fragoff >> 13;
-        return x;
+        self.flags_fragoff >> 13
     }
 
     pub fn frag_off(self) -> u16 {
-        let x = self.flags_fragoff & 0b0001111111111111;
-        return x;
+        self.flags_fragoff & 0b0001_1111_1111_1111
     }
 
     pub fn src_addr_str(self) -> String {
-        let x = u32_ip4_to_str(self.src_addr);
-        return x;
+        u32_ip4_to_str(self.src_addr)
     }
 
     pub fn dst_addr_str(self) -> String {
-        let x = u32_ip4_to_str(self.dst_addr);
-        return x;
+        u32_ip4_to_str(self.dst_addr)
     }
 
     pub fn to_string(self) -> String {

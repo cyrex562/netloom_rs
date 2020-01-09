@@ -33,7 +33,7 @@ impl UdpHeader {
         x.dst_port = bytes_to_u16(&raw_udp_hdr[2..]);
         x.len = bytes_to_u16(&raw_udp_hdr[4..]);
         x.chksum = bytes_to_u16(&raw_udp_hdr[6..]);
-        return x;
+        x
     }
 
     pub fn to_string(self) -> String {
