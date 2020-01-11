@@ -1,15 +1,16 @@
+use std::fmt::{Display, Formatter};
+
+use num_derive::FromPrimitive;
+use num_traits::FromPrimitive;
+
 ///
 /// ## ipv4.rs
 /// IPv4 Protocol Suite
 ///
 /// ref: shttps://tools.ietf.org/html/rfc791#section-3.1
 ///
-
-use crate::ip_proto::Ipv4Proto;
+use crate::ip_proto::IpProto;
 use crate::util::{bytes_to_u16, bytes_to_u32, u32_ip4_to_str};
-use num_derive::{FromPrimitive};
-use num_traits::{FromPrimitive};
-use std::fmt::{Display, Formatter};
 
 // https://tools.ietf.org/html/rfc791#section-3.1
 #[derive(Copy, Clone, Default)]
@@ -21,7 +22,7 @@ pub struct Ipv4Header {
     pub ip_id: u16,
     pub flags_fragoff: u16,
     pub ttl: u8,
-    pub proto: Ipv4Proto,
+    pub proto: IpProto,
     pub chksum: u16,
     pub src_addr: u32,
     pub dst_addr: u32,
@@ -204,10 +205,10 @@ impl Ipv4Header {
             ip_id: bytes_to_u16(&raw_ip4_hdr[4..]),
             flags_fragoff: bytes_to_u16(&raw_ip4_hdr[6..]),
             ttl: raw_ip4_hdr[8],
-            proto: Ipv4Proto::from_u8(raw_ip4_hdr[9]).unwrap(),
+            proto: IpProto::from_u8(raw_ip4_hdr[9]).unwrap(),
             chksum: bytes_to_u16(&raw_ip4_hdr[10..]),
             src_addr: bytes_to_u32(&raw_ip4_hdr[12..]),
-            dst_addr: bytes_to_u32(&raw_ip4_hdr[16..])
+            dst_addr: bytes_to_u32(&raw_ip4_hdr[16..]),
         }
     }
 

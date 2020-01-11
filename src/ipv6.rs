@@ -1,15 +1,15 @@
+use std::fmt::{Display, Formatter};
 
+use log::{debug, error};
+use num_derive::{FromPrimitive, ToPrimitive};
+use num_traits::{FromPrimitive, ToPrimitive};
+
+use crate::ip_proto::IpProto;
 ///
 /// ## ipv6.rs
 ///
 /// ref: https://tools.ietf.org/html/rfc2460
 use crate::util::{bytes_to_u16, bytes_to_u32, ipv6_to_str};
-use crate::ip_proto::Ipv4Proto;
-use log::{debug, error};
-use num_derive::{FromPrimitive, ToPrimitive};
-use num_traits::{FromPrimitive, ToPrimitive};
-use std::fmt::{Display, Formatter};
-
 
 // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // |Version| Traffic Class |           Flow Label                  |
@@ -47,7 +47,7 @@ use std::fmt::{Display, Formatter};
 pub struct Ipv6Header {
     pub ver_class_flow: u32,
     pub payload_len: u16,
-    pub next_hdr: Ipv4Proto,
+    pub next_hdr: IpProto,
     pub hop_limit: u8,
     pub src_addr: [u8; 16],
     pub dst_addr: [u8; 16],
@@ -58,7 +58,7 @@ impl Ipv6Header {
         let mut x: Self = Default::default();
         x.ver_class_flow = bytes_to_u32(&raw[0..]);
         x.payload_len = bytes_to_u16(&raw[4..]);
-        x.next_hdr = Ipv4Proto::from_byte(raw[6]);
+        x.next_hdr = IpProto::from_byte(raw[6]);
         x.hop_limit = raw[7];
         x.src_addr.copy_from_slice(&raw[8..24]);
         x.dst_addr.copy_from_slice(&raw[24..40]);

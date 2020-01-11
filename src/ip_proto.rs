@@ -1,21 +1,34 @@
-
-use log::{error};
-use num_derive::{FromPrimitive};
-use num_traits::{FromPrimitive};
+///
+/// ## ip_proto.rs
+///
+/// List of IP Protocols
+use log::error;
+use num_derive::FromPrimitive;
+use num_traits::FromPrimitive;
 
 #[derive(Copy, Clone, PartialEq, FromPrimitive, Debug)]
 #[repr(u8)]
-pub enum Ipv4Proto {
-    HopOpt = 0,           // IPv6 Hop-by-Hop Option RFC8200
-    Icmp = 1,             // RFC792
-    Igmp = 2,             // RFC1112
-    Ggp = 3,              // Gateway To Gateway RFC823
-    Ipv4 = 4,             // IPv4 Encapsulation RFC2003
-    Stream = 5,           // RFC1190, RFC1819
-    Tcp = 6,              // RFC793
-    Cbt = 7,              // unk
-    Egp = 8,              // RFC888
-    Igp = 9,              // Any private interior gateway protocol
+pub enum IpProto {
+    HopOpt = 0,
+    // IPv6 Hop-by-Hop Option RFC8200
+    Icmp = 1,
+    // RFC792
+    Igmp = 2,
+    // RFC1112
+    Ggp = 3,
+    // Gateway To Gateway RFC823
+    Ipv4 = 4,
+    // IPv4 Encapsulation RFC2003
+    Stream = 5,
+    // RFC1190, RFC1819
+    Tcp = 6,
+    // RFC793
+    Cbt = 7,
+    // unk
+    Egp = 8,
+    // RFC888
+    Igp = 9,
+    // Any private interior gateway protocol
     BbnRccMon = 10,       // BBN RCC Monitoring
     Nvp2 = 11,            // Network Voice Protocol RFC741
     Pup = 12,             // PUP
@@ -155,13 +168,13 @@ pub enum Ipv4Proto {
     Reserved = 255, // End
 }
 
-impl Default for Ipv4Proto {
+impl Default for IpProto {
     fn default() -> Self {
         Self::Reserved
     }
 }
 
-impl Ipv4Proto {
+impl IpProto {
     pub fn from_byte(b: u8) -> Self {
         match Self::from_u8(b) {
             Some(val) => val,

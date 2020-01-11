@@ -16,12 +16,23 @@ extern crate user32;
 extern crate winapi;
 extern crate yaml_rust;
 
-use clap::{App, Arg};
-use log::{debug, error, info, warn};
 use std::error::Error;
 use std::fs::File;
 use std::io::prelude::*;
 use std::path::Path;
+
+use clap::{App, Arg};
+use log::{debug, error, info, warn};
+
+use config::Config;
+
+use crate::ethernet::{EtherType, EthernetFrame};
+use crate::ip_proto::IpProto;
+use crate::ipv4::Ipv4Header;
+use crate::ipv6::Ipv6Header;
+use crate::packet_info::PacketInfo;
+use crate::tcp::TcpHeader;
+use crate::udp::UdpHeader;
 
 mod arp;
 mod config;
@@ -37,15 +48,6 @@ mod tcp;
 mod transport_proto;
 mod udp;
 mod util;
-
-use crate::ethernet::{EtherType, EthernetFrame};
-use crate::ip_proto::Ipv4Proto;
-use crate::ipv4::Ipv4Header;
-use crate::ipv6::Ipv6Header;
-use crate::packet_info::PacketInfo;
-use crate::tcp::TcpHeader;
-use crate::udp::UdpHeader;
-use config::Config;
 
 fn main() {
     let _result = util::setup_logger();
@@ -121,7 +123,9 @@ fn main() {
     // todo: loop and capture packets
     let mut count: u32 = 0;
     loop {
-        if config.max_loop > 0 && count >= config.max_loop { break; }
+        if config.max_loop > 0 && count >= config.max_loop {
+            break;
+        }
 
         let mut pkt_info = PacketInfo::new();
         pkt_info.packet_data = match pcap::get_packet(cap_handle) {
@@ -139,7 +143,7 @@ fn main() {
 
         let mut frame_ptr = std::mem::size_of::<EthernetFrame>();
 
-        let mut ip_proto: Ipv4Proto = Ipv4Proto::Reserved;
+        let mut ip_proto: IpProto = IpProto::Reserved;
 
         match ether_frame.ether_type {
             EtherType::Arp => {
@@ -176,7 +180,7 @@ fn main() {
 
         if ether_frame.ether_type == EtherType::Ipv4 || ether_frame.ether_type == EtherType::Ipv6 {
             match ip_proto {
-                Ipv4Proto::Udp => {
+                IpProto::Udp => {
                     let udp_hdr = UdpHeader::new(&pkt_info.packet_data.data[frame_ptr..]);
                     info!("UDP Header: {}", udp_hdr.to_string());
                     pkt_info
@@ -184,7 +188,7 @@ fn main() {
                         .push(packet_headers::PacketHeader::Udp(udp_hdr));
                     frame_ptr += std::mem::size_of::<UdpHeader>();
                 }
-                Ipv4Proto::Tcp => {
+                IpProto::Tcp => {
                     let tcp_hdr = TcpHeader::new(&pkt_info.packet_data.data[frame_ptr..]);
                     info!(
                         "TCP Header: {:?}",
