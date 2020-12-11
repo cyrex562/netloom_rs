@@ -1,0 +1,51 @@
+@startuml Packet Processing Diagram
+
+cloud "Network" {
+    [network1]
+}
+
+
+package network_interface {
+    package PcapInterface {
+        () rx_packet
+        () tx_packet
+        () push_packet
+        () pop_packet
+        [net_ifc_rx_pkt_buf]
+        [net_ifc_tx_pkt_buf]
+    }
+}
+push_packet - [net_ifc_rx_pkt_buf]
+[net_ifc_tx_pkt_buf] - pop_packet
+[network1] --> rx_packet : WirePacket
+[network1] <-- tx_packet : WirePacket
+rx_packet ..> push_packet : PacketData
+
+package PacketParser {
+    () get_packet
+    () parse_packet
+    () pub_packet
+}
+
+get_packet ..> parse_packet : PacketData
+parse_packet ..> pub_packet
+[net_ifc_rx_pkt_buf] --> get_packet
+
+package packet_info {
+    package PacketInfo {
+        [PacketData]
+        [Headers]
+        () store_packet_data
+        () add_header
+    }
+}
+
+store_packet_data -- [PacketData]
+add_header -- [Headers]
+get_packet --> store_packet_data : PacketData
+parse_packet --> add_header : PacketHeader
+pop_packet ..> tx_packet : PacketData
+
+
+@enduml
+

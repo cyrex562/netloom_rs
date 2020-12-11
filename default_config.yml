@@ -1,0 +1,6 @@
+# default configuration file for NetloomRS
+
+network_devices:
+  - name: ens33
+    address: 192.168.197.128
+max_loop: 100  
